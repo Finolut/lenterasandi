@@ -1,0 +1,44 @@
+name: Supabase Keepalive (Anti-Freeze)
+
+on:
+  schedule:
+    # Berjalan setiap 3 hari sekali pukul 00:00 UTC (07:00 WIB)
+    # Supabase free tier freeze jika tidak ada aktivitas selama 7 hari berturut-turut.
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # Tombol manual "Run workflow" di GitHub Actions
+
+jobs:
+  ping-supabase:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PostgreSQL Client
+        run: |
+          if ! command -v psql &> /dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+
+      - name: Ping Supabase Database Pooler
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD || secrets.DB_PASSWORD }}
+          DB_HOST: ${{ vars.DB_HOST || 'aws-0-ap-southeast-1.pooler.supabase.com' }}
+          DB_PORT: ${{ vars.DB_PORT || '6543' }}
+          DB_USER: ${{ vars.DB_USERNAME || 'postgres.zqkftcrmochjsszttcxr' }}
+          DB_NAME: ${{ vars.DB_DATABASE || 'postgres' }}
+        run: |
+          if [ -z "$PGPASSWORD" ]; then
+            echo "::error::Secret SUPABASE_DB_PASSWORD atau DB_PASSWORD belum diatur di GitHub Secrets!"
+            echo "Langkah pengaturan:"
+            echo "1. Buka repository di GitHub -> Settings -> Secrets and variables -> Actions"
+            echo "2. Klik 'New repository secret'"
+            echo "3. Name: SUPABASE_DB_PASSWORD"
+            echo "4. Value: (password database Supabase Anda)"
+            exit 1
+          fi
+
+          echo "Menghubungi Supabase di $DB_HOST:$DB_PORT..."
+          psql "host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER sslmode=require" \
+            -c "SELECT 1 as keepalive, current_timestamp as server_time;"
+          
+          echo "BERHASIL! Aktivitas database tercatat di Supabase, proyek aman dari auto-freeze."
