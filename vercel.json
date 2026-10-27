@@ -45,6 +45,8 @@
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "true",
+        "APP_URL": "https://lenterasandi.vercel.app",
+        "ASSET_URL": "https://lenterasandi.vercel.app",
         "APP_STORAGE": "/tmp/storage",
         "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
         "APP_CONFIG_CACHE": "/tmp/storage/bootstrap/cache/config.php",

@@ -45,6 +45,12 @@ $envSettings = [
     'APP_SERVICES_CACHE' => "{$storage}/bootstrap/cache/services.php",
 ];
 
+// Ensure HTTPS is detected behind Vercel reverse proxy
+if ((isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || (isset($_SERVER['VERCEL']) && $_SERVER['VERCEL'] == '1')) {
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['SERVER_PORT'] = '443';
+}
+
 foreach ($envSettings as $key => $value) {
     putenv("{$key}={$value}");
     $_ENV[$key] = $value;
