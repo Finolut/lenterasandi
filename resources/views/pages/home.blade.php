@@ -69,7 +69,7 @@
                         <div
                             x-data
                             x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
-                            class="bg-white dark:bg-slate-900 rounded-lg border border-[#e5e7eb] dark:border-slate-800 hover:border-[#cbd5e1] dark:hover:border-slate-700 hover:shadow-md transition-all duration-200 group overflow-hidden flex flex-col h-full w-full max-w-[200px] mx-auto sm:mx-0"
+                            class="bg-white dark:bg-slate-900 rounded-lg border border-[#e5e7eb] dark:border-slate-800 hover:border-[#cbd5e1] dark:hover:border-slate-700 hover:shadow-md transition-all duration-200 group overflow-hidden {{ $loop->iteration > 4 ? 'hidden sm:flex' : 'flex' }} flex-col h-full w-full max-w-[200px] mx-auto sm:mx-0"
                         >
                             <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover class="flex flex-col h-full cursor-pointer">
                                 {{-- Cover Buku --}}
