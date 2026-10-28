@@ -45,6 +45,19 @@ class PermohonanAkses extends Model
 
     public const STATUSES = ['Menunggu', 'Disetujui', 'Ditolak'];
 
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
+            \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
+            \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
+        });
+    }
+
     public function informasi(): BelongsTo
     {
         return $this->belongsTo(Informasi::class, 'informasi_id');

@@ -1,7 +1,7 @@
 @props(['active' => 'Dashboard'])
 
 @php
-$sidebarCounts = \Illuminate\Support\Facades\Cache::remember('admin_sidebar_counts', 30, function () {
+$sidebarCounts = \Illuminate\Support\Facades\Cache::remember('admin_sidebar_counts', 300, function () {
     return [
         'ebook'     => \App\Models\Ebook::count(),
         'informasi' => \App\Models\Informasi::count(),
@@ -57,7 +57,7 @@ $navItems = [
                 <img src="{{ asset('assets/images/logo.png') }}" alt="Lentera Sandi" class="w-full h-full object-contain">
             </div>
             <div class="leading-tight">
-                <a href="{{ route('admin.dashboard') }}" wire:navigate.hover class="font-bold text-white tracking-tight hover:text-[#38bdf8] text-sm flex items-center transition-colors">
+                <a href="{{ route('admin.dashboard') }}" wire:navigate class="font-bold text-white tracking-tight hover:text-[#38bdf8] text-sm flex items-center transition-colors">
                     LENTERA<span class="text-[#38bdf8] ml-0.5">SANDI</span>
                 </a>
                 <div class="text-[10px] text-slate-400 font-medium">Panel Administrasi</div>
@@ -79,7 +79,7 @@ $navItems = [
                     @endphp
                     <a
                         href="{{ route($item['route']) }}"
-                        wire:navigate.hover
+                        wire:navigate
                         class="flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-150 {{ $isActive ? 'bg-[#0284c7] text-white shadow-xs font-semibold' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}"
                     >
                         <div class="flex items-center gap-2.5 min-w-0">

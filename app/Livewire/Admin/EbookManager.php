@@ -53,6 +53,11 @@ class EbookManager extends Component
         $this->selectedIds = array_values(
             array_filter($this->selectedIds, fn($i) => (int) $i !== $id)
         );
+
+        \Illuminate\Support\Facades\Cache::forget('admin_ebook_categories');
+        \Illuminate\Support\Facades\Cache::forget('admin_ebook_total');
+        \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
+        \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
     }
 
     public function deleteSelected(): void
@@ -72,11 +77,17 @@ class EbookManager extends Component
 
         $this->selectedIds = [];
         $this->selectAll   = false;
+
+        \Illuminate\Support\Facades\Cache::forget('admin_ebook_categories');
+        \Illuminate\Support\Facades\Cache::forget('admin_ebook_total');
+        \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
+        \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
     }
 
     private function getQuery()
     {
         return Ebook::query()
+            ->select(['id', 'judul', 'kategori', 'pengarang', 'status', 'cover_image', 'file_url', 'jumlah_unduhan', 'created_at'])
             ->when($this->search, fn($q) =>
                 $q->where(fn($q2) =>
                     $q2->where('judul', 'ilike', '%'.$this->search.'%')
@@ -104,24 +115,27 @@ class EbookManager extends Component
     public function render()
     {
         $ebooks     = $this->getQuery()->paginate(10);
-        $totalEbook = Ebook::count();
+        $totalEbook = \Illuminate\Support\Facades\Cache::remember('admin_ebook_total', 300, fn() => Ebook::count());
 
-        $rawCategories = Ebook::whereNotNull('kategori')->where('kategori', '!=', '')->pluck('kategori');
-        $allCategories = [];
-        foreach ($rawCategories as $raw) {
-            foreach (explode(',', $raw) as $c) {
-                $c = trim($c);
-                if ($c !== '' && !in_array($c, $allCategories, true)) {
-                    $allCategories[] = $c;
+        $allCategories = \Illuminate\Support\Facades\Cache::remember('admin_ebook_categories', 300, function () {
+            $rawCategories = Ebook::whereNotNull('kategori')->where('kategori', '!=', '')->pluck('kategori');
+            $cats = [];
+            foreach ($rawCategories as $raw) {
+                foreach (explode(',', $raw) as $c) {
+                    $c = trim($c);
+                    if ($c !== '' && !in_array($c, $cats, true)) {
+                        $cats[] = $c;
+                    }
                 }
             }
-        }
-        natcasesort($allCategories);
+            natcasesort($cats);
+            return array_values($cats);
+        });
 
         return view('livewire.admin.ebook-manager', [
             'ebooks'      => $ebooks,
             'totalEbook'  => $totalEbook,
-            'categories'  => array_values($allCategories),
+            'categories'  => $allCategories,
         ]);
     }
 }

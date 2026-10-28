@@ -39,6 +39,10 @@ class NewsManager extends Component
         }
         $informasi->delete();
         $this->selectedIds = array_values(array_filter($this->selectedIds, fn($i) => (int) $i !== $id));
+        \Illuminate\Support\Facades\Cache::forget('admin_news_categories');
+        \Illuminate\Support\Facades\Cache::forget('admin_news_total');
+        \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
+        \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
     }
 
     public function deleteSelected(): void
@@ -55,11 +59,16 @@ class NewsManager extends Component
 
         $this->selectedIds = [];
         $this->selectAll = false;
+        \Illuminate\Support\Facades\Cache::forget('admin_news_categories');
+        \Illuminate\Support\Facades\Cache::forget('admin_news_total');
+        \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
+        \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
     }
 
     public function getFilteredNewsProperty()
     {
         return Informasi::query()
+            ->select(['id', 'judul', 'kategori', 'status', 'gambar', 'published_at', 'jumlah_dilihat', 'created_by', 'created_at'])
             ->when($this->search !== '', function ($query) {
                 $query->where(function ($query) {
                     $query->where('judul', 'like', '%' . $this->search . '%')
@@ -79,22 +88,29 @@ class NewsManager extends Component
 
     public function render()
     {
-        $allCategories = Informasi::whereNotNull('kategori')
-            ->get()
-            ->flatMap(fn($i) => $i->kategori_list)
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values()
-            ->all();
+        $allCategories = \Illuminate\Support\Facades\Cache::remember('admin_news_categories', 300, function () {
+            $cats = Informasi::whereNotNull('kategori')
+                ->where('kategori', '!=', '')
+                ->pluck('kategori')
+                ->flatMap(function ($raw) {
+                    return array_map('trim', explode(',', $raw));
+                })
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values()
+                ->all();
 
-        if (empty($allCategories)) {
-            $allCategories = ['Pengumuman', 'Kegiatan', 'Informasi'];
-        }
+            return !empty($cats) ? $cats : ['Pengumuman', 'Kegiatan', 'Informasi'];
+        });
+
+        $totalNews = \Illuminate\Support\Facades\Cache::remember('admin_news_total', 300, function () {
+            return Informasi::count();
+        });
 
         return view('livewire.admin.news-manager', [
             'filteredNews'  => $this->filteredNews,
-            'totalNews'     => Informasi::count(),
+            'totalNews'     => $totalNews,
             'allCategories' => $allCategories,
         ]);
     }

@@ -227,17 +227,19 @@ class MessageManager extends Component
     {
         $messages = $this->getFilteredQuery()->paginate($this->perPage);
 
-        $totalAll = PermohonanAkses::count();
-        $totalUnread = PermohonanAkses::whereNull('dibaca_at')->count();
-        $totalPending = PermohonanAkses::where('status', 'Menunggu')->count();
-        $totalApproved = PermohonanAkses::where('status', 'Disetujui')->count();
+        $counts = PermohonanAkses::selectRaw("
+            count(*) as total_all,
+            count(case when dibaca_at is null then 1 end) as total_unread,
+            count(case when status = 'Menunggu' then 1 end) as total_pending,
+            count(case when status = 'Disetujui' then 1 end) as total_approved
+        ")->first();
 
         return view('livewire.admin.message-manager', [
             'messages'      => $messages,
-            'totalAll'      => $totalAll,
-            'totalUnread'   => $totalUnread,
-            'totalPending'  => $totalPending,
-            'totalApproved' => $totalApproved,
+            'totalAll'      => (int) ($counts->total_all ?? 0),
+            'totalUnread'   => (int) ($counts->total_unread ?? 0),
+            'totalPending'  => (int) ($counts->total_pending ?? 0),
+            'totalApproved' => (int) ($counts->total_approved ?? 0),
         ]);
     }
 }

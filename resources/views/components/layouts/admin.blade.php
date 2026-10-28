@@ -113,26 +113,62 @@
         };
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', window.renderPdfCovers);
-        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                if (document.querySelector('.pdf-cover-wrap')) window.renderPdfCovers();
+            });
+        } else if (document.querySelector('.pdf-cover-wrap')) {
             window.renderPdfCovers();
         }
 
         document.addEventListener('livewire:navigated', () => {
-            setTimeout(window.renderPdfCovers, 50);
+            if (document.querySelector('.pdf-cover-wrap')) {
+                setTimeout(window.renderPdfCovers, 50);
+            }
         });
+    </script>
 
-        document.addEventListener('livewire:init', () => {
-            Livewire.hook('morph.updated', () => {
-                setTimeout(window.renderPdfCovers, 50);
-            });
-            Livewire.hook('commit', () => {
-                setTimeout(window.renderPdfCovers, 50);
-            });
+    {{-- Instant Loading Progress Bar Style & Script --}}
+    <style>
+        #admin-nav-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #0284c7 0%, #38bdf8 50%, #0ea5e9 100%);
+            z-index: 99999;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+        }
+    </style>
+    <script data-navigate-once>
+        document.addEventListener('livewire:navigating', () => {
+            const el = document.getElementById('admin-nav-progress');
+            if (el) {
+                el.style.opacity = '1';
+                el.style.transform = 'scaleX(0.7)';
+            }
+        });
+        document.addEventListener('livewire:navigated', () => {
+            const el = document.getElementById('admin-nav-progress');
+            if (el) {
+                el.style.transform = 'scaleX(1)';
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    setTimeout(() => {
+                        el.style.transform = 'scaleX(0)';
+                    }, 200);
+                }, 80);
+            }
         });
     </script>
 </head>
 <body class="min-h-full bg-[#f8fafc] text-[#0f172a] antialiased font-sans selection:bg-[#0284c7] selection:text-white">
+    <div id="admin-nav-progress"></div>
     <div class="flex min-h-screen">
         {{-- Sidebar --}}
         <x-admin.sidebar :active="$active" />
