@@ -154,14 +154,14 @@
                                 />
                             </td>
 
-                            {{-- Pemohon --}}
+                            {{-- Pemohon (Plain Text Tanpa Tombol/Navigasi) --}}
                             <td class="px-4 py-3.5">
                                 <div class="flex items-center gap-2">
                                     @if($msg->dibaca_at === null)
                                         <span class="w-2 h-2 rounded-full bg-[#0284c7] shrink-0" title="Pesan Baru"></span>
                                     @endif
                                     <div class="min-w-0">
-                                        <div class="font-semibold text-xs sm:text-sm text-slate-900 hover:text-[#0284c7] cursor-pointer" wire:click="viewMessage({{ $msg->id }})">
+                                        <div class="font-semibold text-xs sm:text-sm text-slate-900 select-text">
                                             {{ $msg->nama_lengkap }}
                                         </div>
                                         <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
@@ -174,18 +174,16 @@
                                 </div>
                             </td>
 
-                            {{-- Kontak --}}
+                            {{-- Kontak (Plain Text Tanpa Link Mailto/Navigasi) --}}
                             <td class="px-4 py-3.5 text-xs text-slate-700">
-                                <div class="flex items-center gap-1.5 font-medium">
+                                <div class="flex items-center gap-1.5 font-medium select-text">
                                     <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                     </svg>
-                                    <a href="mailto:{{ $msg->email }}" class="text-[#0284c7] hover:underline truncate max-w-[170px]" title="{{ $msg->email }}">
-                                        {{ $msg->email }}
-                                    </a>
+                                    <span class="truncate max-w-[170px]" title="{{ $msg->email }}">{{ $msg->email }}</span>
                                 </div>
                                 @if($msg->telepon)
-                                    <div class="flex items-center gap-1.5 text-slate-500 mt-0.5 font-mono text-[11px]">
+                                    <div class="flex items-center gap-1.5 text-slate-500 mt-0.5 font-mono text-[11px] select-text">
                                         <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                                         </svg>
@@ -194,15 +192,15 @@
                                 @endif
                             </td>
 
-                            {{-- Artikel & Berkas --}}
+                            {{-- Artikel & Berkas (Plain Text Tanpa Tombol/Navigasi) --}}
                             <td class="px-4 py-3.5 text-xs hidden md:table-cell">
                                 @if($msg->informasi)
                                     <div class="font-medium text-slate-800 line-clamp-1 max-w-[220px]" title="{{ $msg->informasi->judul }}">
                                         {{ $msg->informasi->judul }}
                                     </div>
                                     @if($msg->informasi->file_pendukung_nama)
-                                        <div class="text-[11px] text-[#0284c7] flex items-center gap-1 mt-0.5 truncate max-w-[200px]" title="{{ $msg->informasi->file_pendukung_nama }}">
-                                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 truncate max-w-[200px]" title="{{ $msg->informasi->file_pendukung_nama }}">
+                                            <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                             </svg>
                                             <span class="truncate">{{ $msg->informasi->file_pendukung_nama }}</span>
@@ -281,7 +279,7 @@
         </div>
     </div>
 
-    {{-- MODAL DETAIL PESAN & PERMOHONAN AKSES --}}
+    {{-- MODAL DETAIL PERMOHONAN AKSES (DESAIN BERSIH & MUDAH DIBACA) --}}
     @if($viewingMessageId && $activeMessage)
         <div 
             x-data="{ show: true }"
@@ -293,115 +291,148 @@
             aria-modal="true"
             @keydown.escape.window="show = false; $wire.closeModal()"
         >
-            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" @click="show = false; $wire.closeModal()"></div>
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" @click="show = false; $wire.closeModal()"></div>
 
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:my-8 w-full max-w-2xl border border-slate-200">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full max-w-xl border border-slate-100">
                     
-                    {{-- Modal Header (Warna Biru Khas Admin Lentera Sandi) --}}
-                    <div class="bg-[#083575] px-5 py-3.5 text-white flex items-center justify-between border-b border-[#0b489a]">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-white/10 text-sky-200 flex items-center justify-center shrink-0">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {{-- Header Modal --}}
+                    <div class="px-6 py-4.5 bg-white border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-sky-50 text-[#0284c7] flex items-center justify-center shrink-0 border border-sky-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-xs sm:text-sm font-bold text-white leading-tight" id="detail-title">
-                                    Permohonan Akses #{{ $activeMessage->id }}
-                                </h3>
-                                <p class="text-[10px] text-sky-200">{{ $activeMessage->tanggal_pengajuan }}</p>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-base font-bold text-slate-900" id="detail-title">
+                                        Permohonan Akses #{{ $activeMessage->id }}
+                                    </h3>
+                                    @if($activeMessage->status === 'Disetujui')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            ✓ Disetujui
+                                        </span>
+                                    @elseif($activeMessage->status === 'Menunggu')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                            ⏳ Menunggu
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                            ✕ Ditolak
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5">{{ $activeMessage->tanggal_pengajuan }}</p>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            @if($activeMessage->status === 'Disetujui')
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/25 text-emerald-100 border border-emerald-400/30">✓ Disetujui</span>
-                            @elseif($activeMessage->status === 'Menunggu')
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/25 text-amber-100 border border-amber-400/30">⏳ Menunggu</span>
-                            @else
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/25 text-rose-100 border border-rose-400/30">✕ Ditolak</span>
-                            @endif
-
-                            <button @click="show = false; $wire.closeModal()" type="button" class="text-white/80 hover:text-white rounded-lg p-1 transition-colors cursor-pointer" title="Tutup">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
+                        <button 
+                            @click="show = false; $wire.closeModal()" 
+                            type="button" 
+                            class="text-slate-400 hover:text-slate-600 rounded-lg p-1.5 hover:bg-slate-100 transition-colors cursor-pointer" 
+                            title="Tutup Modal"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
 
-                    {{-- Modal Body (Format Ringkas Tanpa Scroll Panjang) --}}
-                    <div class="p-4 sm:p-5 space-y-3.5">
+                    {{-- Body Modal --}}
+                    <div class="p-6 space-y-4">
                         @if($flashMessage)
-                            <div class="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs text-emerald-800 flex items-center gap-2">
-                                <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="rounded-xl bg-emerald-50 border border-emerald-200/80 p-3 text-xs text-emerald-800 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
-                                <span>{{ $flashMessage }}</span>
+                                <span class="font-medium">{{ $flashMessage }}</span>
                             </div>
                         @endif
 
-                        {{-- Ringkasan 2 Kolom: Pemohon & Berkas --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200/80 text-xs">
-                            {{-- Kolom Kiri: Pemohon --}}
-                            <div class="space-y-1">
-                                <div class="text-[10px] font-bold tracking-wider uppercase text-slate-400">Pemohon</div>
-                                <div class="font-bold text-slate-900 text-sm leading-tight">{{ $activeMessage->nama_lengkap }}</div>
-                                <div class="text-slate-600 truncate">{{ $activeMessage->instansi }}</div>
-                                <div class="pt-1 flex items-center gap-2 flex-wrap">
-                                    <a href="mailto:{{ $activeMessage->email }}" class="text-[#0284c7] hover:underline truncate" title="{{ $activeMessage->email }}">
-                                        {{ $activeMessage->email }}
-                                    </a>
-                                    @if($activeMessage->telepon)
-                                        @php
-                                            $wa = preg_replace('/[^0-9]/', '', $activeMessage->telepon);
-                                            if (str_starts_with($wa, '0')) $wa = '62' . substr($wa, 1);
-                                        @endphp
-                                        <a href="https://wa.me/{{ $wa }}" target="_blank" class="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-100/80 hover:bg-emerald-200 px-1.5 py-0.5 rounded transition-colors">
-                                            <span>WA: {{ $activeMessage->telepon }}</span>
-                                        </a>
-                                    @endif
+                        {{-- Section 1: Informasi Pemohon --}}
+                        <div class="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-3">
+                                Informasi Pemohon
+                            </span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+                                <div>
+                                    <span class="text-slate-500 block text-[11px] mb-0.5">Nama Lengkap</span>
+                                    <span class="font-semibold text-slate-900 text-sm">{{ $activeMessage->nama_lengkap }}</span>
                                 </div>
-                            </div>
-
-                            {{-- Kolom Kanan: Berkas & Keperluan --}}
-                            <div class="space-y-1 sm:border-l sm:border-slate-200 sm:pl-3">
-                                <div class="text-[10px] font-bold tracking-wider uppercase text-slate-400">Berkas yang Dimohonkan</div>
-                                @if($activeMessage->informasi)
-                                    <div class="font-semibold text-slate-800 line-clamp-1" title="{{ $activeMessage->informasi->judul }}">
-                                        {{ $activeMessage->informasi->judul }}
-                                    </div>
-                                    <div class="flex items-center justify-between gap-1 text-[11px] text-slate-500">
-                                        <span class="truncate">{{ $activeMessage->informasi->file_pendukung_nama ?? 'Berkas Pendukung' }}</span>
-                                        @if($activeMessage->informasi->file_pendukung_url)
-                                            <a href="{{ Storage::disk('public')->url($activeMessage->informasi->file_pendukung_url) }}" target="_blank" class="text-[#0284c7] hover:underline font-semibold shrink-0">
-                                                Unduh &darr;
-                                            </a>
-                                        @endif
-                                    </div>
-                                @else
-                                    <div class="text-slate-400 italic">Artikel telah dihapus</div>
-                                @endif
-                                <div class="pt-1 text-[11px] text-slate-600 line-clamp-2 italic" title="{{ $activeMessage->keperluan }}">
-                                    &ldquo;{{ $activeMessage->keperluan ?: 'Tidak ada keterangan keperluan.' }}&rdquo;
+                                <div>
+                                    <span class="text-slate-500 block text-[11px] mb-0.5">Instansi / Lembaga</span>
+                                    <span class="font-medium text-slate-800">{{ $activeMessage->instansi ?: '—' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block text-[11px] mb-0.5">Alamat Email</span>
+                                    <span class="font-medium text-slate-800">{{ $activeMessage->email }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block text-[11px] mb-0.5">Nomor WhatsApp</span>
+                                    <span class="font-medium text-slate-800 font-mono">{{ $activeMessage->telepon ?: '—' }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Area Tindakan & Token (Kompak) --}}
-                        <div class="p-3 rounded-lg border {{ $activeMessage->status === 'Disetujui' ? 'bg-emerald-50/50 border-emerald-200' : ($activeMessage->status === 'Menunggu' ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200') }}">
+                        {{-- Section 2: Berkas & Keperluan --}}
+                        <div class="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Berkas yang Dimohonkan
+                            </span>
+
+                            @if($activeMessage->informasi)
+                                <div>
+                                    <span class="text-slate-500 block text-[11px] mb-0.5">Judul Artikel</span>
+                                    <span class="font-medium text-slate-900 text-xs sm:text-sm">
+                                        {{ $activeMessage->informasi->judul }}
+                                    </span>
+                                </div>
+
+                                @if($activeMessage->informasi->file_pendukung_nama)
+                                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 text-xs">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <svg class="w-4 h-4 text-[#0284c7] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span class="font-medium text-slate-800 truncate">{{ $activeMessage->informasi->file_pendukung_nama }}</span>
+                                        </div>
+                                        @if($activeMessage->informasi->file_pendukung_url)
+                                            <a 
+                                                href="{{ Storage::disk('public')->url($activeMessage->informasi->file_pendukung_url) }}" 
+                                                target="_blank" 
+                                                class="text-[#0284c7] hover:underline font-semibold shrink-0 text-xs ml-2"
+                                            >
+                                                Unduh File &darr;
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
+                            @else
+                                <div class="text-slate-400 italic text-xs">Artikel terkait telah dihapus.</div>
+                            @endif
+
+                            <div>
+                                <span class="text-slate-500 block text-[11px] mb-1">Keperluan / Alasan Akses</span>
+                                <div class="p-3 bg-white rounded-lg border border-slate-200 text-xs text-slate-700 leading-relaxed italic">
+                                    &ldquo;{{ $activeMessage->keperluan ?: 'Tidak ada keterangan keperluan yang dilampirkan.' }}&rdquo;
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Section 3: Token Akses & Aksi --}}
+                        <div class="rounded-xl border p-4 {{ $activeMessage->status === 'Disetujui' ? 'bg-emerald-50/40 border-emerald-200' : ($activeMessage->status === 'Menunggu' ? 'bg-amber-50/40 border-amber-200' : 'bg-slate-50 border-slate-200') }}">
                             @if($activeMessage->status === 'Menunggu')
-                                <div class="flex items-center justify-between gap-3 flex-wrap">
-                                    <div class="text-xs text-slate-700">
-                                        <span class="font-semibold text-amber-800">Permohonan Menunggu:</span>
-                                        <span class="text-slate-500 text-[11px] block sm:inline">Setujui untuk menerbitkan token sekali pakai pemohon.</span>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div>
+                                        <h5 class="text-xs font-bold text-amber-900">Konfirmasi Permohonan</h5>
+                                        <p class="text-[11px] text-amber-700 mt-0.5">Setujui untuk membuat kode token akses sekali pakai bagi pemohon.</p>
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0">
                                         <button
                                             type="button"
                                             wire:click="updateStatus('Ditolak')"
-                                            class="px-2.5 py-1.5 rounded-lg border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold transition-colors cursor-pointer"
+                                            class="px-3 py-1.5 rounded-lg border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold transition-colors cursor-pointer"
                                         >
                                             ✕ Tolak
                                         </button>
@@ -409,9 +440,9 @@
                                             type="button"
                                             wire:click="approveAndSendToken({{ $activeMessage->id }})"
                                             wire:loading.attr="disabled"
-                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                                         >
-                                            <span wire:loading.remove wire:target="approveAndSendToken({{ $activeMessage->id }})">✓ Setujui &amp; Buat Token</span>
+                                            <span wire:loading.remove wire:target="approveAndSendToken({{ $activeMessage->id }})">✓ Setujui Permohonan</span>
                                             <span wire:loading wire:target="approveAndSendToken({{ $activeMessage->id }})">Memproses...</span>
                                         </button>
                                     </div>
@@ -419,47 +450,55 @@
                             @elseif($activeMessage->status === 'Disetujui')
                                 @if($activeMessage->tokens && $activeMessage->tokens->count() > 0)
                                     @php $lastTok = $activeMessage->tokens->last(); @endphp
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5" x-data="{ copied: false }">
-                                        <div class="flex items-center gap-2 flex-wrap">
-                                            <span class="text-[11px] font-semibold text-emerald-800">Kode Token:</span>
-                                            <code class="px-2 py-0.5 rounded bg-slate-900 text-emerald-400 font-mono text-xs font-bold tracking-wider select-all">
-                                                {{ $lastTok->token }}
-                                            </code>
+                                    <div class="space-y-3" x-data="{ copied: false }">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="text-xs font-bold text-slate-800">Token Akses Berkas</span>
                                             @if(!$lastTok->is_used)
-                                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Aktif (1x Pakai)</span>
+                                                <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                                                    Aktif (Sekali Pakai)
+                                                </span>
                                             @else
-                                                <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded line-through">Sudah Digunakan</span>
+                                                <span class="text-[11px] font-semibold text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">
+                                                    Sudah Digunakan
+                                                </span>
                                             @endif
                                         </div>
-                                        <div class="flex items-center gap-2 shrink-0">
-                                            @if($activeMessage->formatted_wa_number)
-                                                <a
-                                                    href="{{ $activeMessage->getWhatsappShareUrl($lastTok->token) }}"
-                                                    target="_blank"
-                                                    class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer"
-                                                    title="Kirim ke WA pemohon"
+
+                                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-3 rounded-lg bg-white border border-slate-200">
+                                            <code class="font-mono text-base font-bold text-slate-900 tracking-wider text-center sm:text-left select-all">
+                                                {{ $lastTok->token }}
+                                            </code>
+
+                                            <div class="flex items-center justify-end gap-2 shrink-0">
+                                                @if($activeMessage->formatted_wa_number)
+                                                    <a
+                                                        href="{{ $activeMessage->getWhatsappShareUrl($lastTok->token) }}"
+                                                        target="_blank"
+                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors cursor-pointer"
+                                                        title="Kirim kode token via WhatsApp ke pemohon"
+                                                    >
+                                                        <span>Kirim via WA &rarr;</span>
+                                                    </a>
+                                                @endif
+                                                <button
+                                                    type="button"
+                                                    @click="navigator.clipboard.writeText('{{ $lastTok->token }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
                                                 >
-                                                    <span>Kirim via WA &rarr;</span>
-                                                </a>
-                                            @endif
-                                            <button
-                                                type="button"
-                                                @click="navigator.clipboard.writeText('{{ $lastTok->token }}'); copied = true; setTimeout(() => copied = false, 2000)"
-                                                class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-                                            >
-                                                <span x-show="!copied">Salin Token</span>
-                                                <span x-show="copied" class="text-emerald-700 font-bold">✓ Tersalin</span>
-                                            </button>
+                                                    <span x-show="!copied">Salin Token</span>
+                                                    <span x-show="copied" class="text-emerald-700 font-bold">✓ Disalin</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 @endif
                             @else
                                 <div class="flex items-center justify-between gap-2">
-                                    <span class="text-xs text-rose-700 font-semibold">Permohonan ini telah ditolak.</span>
+                                    <span class="text-xs text-rose-700 font-medium">Permohonan ini telah ditolak.</span>
                                     <button
                                         type="button"
                                         wire:click="updateStatus('Menunggu')"
-                                        class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
+                                        class="px-3 py-1 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
                                     >
                                         Kembalikan ke Menunggu
                                     </button>
@@ -467,30 +506,33 @@
                             @endif
                         </div>
 
-                        {{-- Catatan Internal (Single Line Ringkas) --}}
-                        <div class="flex items-center gap-2">
-                            <input
-                                type="text"
-                                wire:model="adminNotes"
-                                placeholder="Catatan internal admin (opsional)..."
-                                class="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none"
-                            />
-                            <button
-                                type="button"
-                                wire:click="saveDetails"
-                                class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
-                            >
-                                Simpan
-                            </button>
+                        {{-- Section 4: Catatan Admin --}}
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Catatan Admin (Internal)</label>
+                            <div class="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    wire:model="adminNotes"
+                                    placeholder="Tulis catatan internal admin jika ada..."
+                                    class="flex-1 px-3 py-2 text-xs bg-slate-50 focus:bg-white border border-slate-200 rounded-lg text-slate-900 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-colors"
+                                />
+                                <button
+                                    type="button"
+                                    wire:click="saveDetails"
+                                    class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
+                                >
+                                    Simpan
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Modal Footer --}}
-                    <div class="px-5 py-2.5 bg-slate-50 border-t border-slate-200/80 flex items-center justify-end">
+                    {{-- Footer Modal --}}
+                    <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
                         <button
                             type="button"
                             @click="show = false; $wire.closeModal()"
-                            class="px-4 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
+                            class="px-4 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
                         >
                             Tutup
                         </button>
