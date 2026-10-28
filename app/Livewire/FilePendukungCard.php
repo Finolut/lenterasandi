@@ -106,6 +106,7 @@ class FilePendukungCard extends Component
 
         $this->showModal = false;
         $this->showTokenModal = false;
+        $this->dispatch('close-file-modal');
         session()->flash('token_success', 'Token valid! Berkas berhasil diunduh (token kini telah hangus).');
 
         return Storage::disk('public')->download(

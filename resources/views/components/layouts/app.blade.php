@@ -14,13 +14,12 @@
 
     <title>{{ $title }}</title>
 
-    {{-- Dark Mode Early Initialization Script (No-FOUC) --}}
+    {{-- Dark Mode Early Initialization Script (No-FOUC) - Default: Light --}}
     <script>
         (function() {
             try {
                 const storedTheme = localStorage.getItem('theme');
-                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+                if (storedTheme === 'dark') {
                     document.documentElement.classList.add('dark');
                 } else {
                     document.documentElement.classList.remove('dark');
@@ -45,8 +44,7 @@
         document.addEventListener('livewire:navigated', function() {
             try {
                 const storedTheme = localStorage.getItem('theme');
-                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+                if (storedTheme === 'dark') {
                     document.documentElement.classList.add('dark');
                 } else {
                     document.documentElement.classList.remove('dark');

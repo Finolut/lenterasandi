@@ -1,4 +1,11 @@
-<div>
+<div
+    x-data="{
+        showModal: false,
+        modalTab: 'form'
+    }"
+    @close-file-modal.window="showModal = false"
+    class="relative"
+>
     @if($informasi->hasFilePendukung())
         {{-- CARD BERKAS PENDUKUNG SIMPEL & BERSIH --}}
         <div class="my-6 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f172a] shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
@@ -56,7 +63,7 @@
                     @else
                         <button
                             type="button"
-                            wire:click="openModal('form')"
+                            @click="showModal = true; modalTab = 'form'"
                             class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#083575] hover:bg-[#06295c] dark:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer"
                         >
                             <svg class="w-3.5 h-3.5 text-sky-200 dark:text-sky-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,205 +92,236 @@
             @endif
         </div>
 
-        {{-- MODAL AKSES BERKAS --}}
-        @if($showModal)
-            <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-                <div class="fixed inset-0 bg-slate-950/70 dark:bg-black/80 backdrop-blur-xs transition-opacity" wire:click="closeModal"></div>
+        {{-- MODAL AKSES BERKAS (Client-side Alpine Instant Rendering Tanpa Lag) --}}
+        <div
+            x-show="showModal"
+            x-cloak
+            class="fixed inset-0 z-50 overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+        >
+            {{-- Backdrop Overlay --}}
+            <div
+                x-show="showModal"
+                x-transition:enter="transition ease-out duration-150"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-slate-950/70 dark:bg-black/80 backdrop-blur-xs transition-opacity"
+                @click="showModal = false"
+            ></div>
 
-                <div class="flex min-h-full items-center justify-center p-4">
-                    <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#0f172a] text-left shadow-2xl transition-all w-full max-w-lg border border-slate-200 dark:border-slate-800">
-                        {{-- Modal Header --}}
-                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
-                            <h3 class="font-bold text-slate-900 dark:text-white text-base">
-                                {{ $modalTab === 'token' ? 'Masukkan Token Akses' : 'Pengajuan Akses Berkas' }}
-                            </h3>
-                            <button wire:click="closeModal" type="button" class="text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg p-1 transition-colors cursor-pointer">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div
+                    x-show="showModal"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#0f172a] text-left shadow-2xl transition-all w-full max-w-lg border border-slate-200 dark:border-slate-800"
+                >
+                    {{-- Modal Header --}}
+                    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">
+                            <span x-show="modalTab === 'token'">Masukkan Token Akses</span>
+                            <span x-show="modalTab === 'form'">Pengajuan Akses Berkas</span>
+                        </h3>
+                        <button
+                            type="button"
+                            @click="showModal = false"
+                            class="text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg p-1 transition-colors cursor-pointer"
+                            aria-label="Tutup"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {{-- Modal Body --}}
+                    <div class="p-6">
+                        {{-- VIEW INPUT TOKEN --}}
+                        <div x-show="modalTab === 'token'">
+                            <form wire:submit="verifyAndDownloadToken" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                                        Kode Token Akses <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        wire:model="tokenInput"
+                                        placeholder="CONTOH: LS-ABCD-1234"
+                                        style="text-transform: uppercase;"
+                                        class="w-full px-3 py-2.5 text-sm sm:text-base bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all font-mono font-bold tracking-widest text-center"
+                                    />
+                                </div>
+
+                                @if($tokenError)
+                                    <div class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 font-medium">
+                                        {{ $tokenError }}
+                                    </div>
+                                @endif
+
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                                    <button
+                                        type="button"
+                                        @click="modalTab = 'form'"
+                                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium transition-colors cursor-pointer"
+                                    >
+                                        ← Formulir
+                                    </button>
+
+                                    <div class="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            @click="showModal = false"
+                                            class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                                        >
+                                            Batal
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            wire:loading.attr="disabled"
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                                        >
+                                            <span wire:loading.remove wire:target="verifyAndDownloadToken">Unduh Berkas</span>
+                                            <span wire:loading wire:target="verifyAndDownloadToken">Memeriksa...</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
 
-                        {{-- Modal Body --}}
-                        <div class="p-6">
-                            @if($modalTab === 'token')
-                                {{-- VIEW INPUT TOKEN --}}
-                                <form wire:submit="verifyAndDownloadToken" class="space-y-4">
+                        {{-- VIEW FORMULIR PENGAJUAN --}}
+                        <div x-show="modalTab === 'form'">
+                            @if($isSubmitted)
+                                <div class="text-center py-4">
+                                    <div class="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3">
+                                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">Permohonan Terkirim</h4>
+                                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5">
+                                        {{ $successMessage }}
+                                    </p>
+                                    <button
+                                        type="button"
+                                        @click="showModal = false; $wire.set('isSubmitted', false)"
+                                        class="px-5 py-2 rounded-xl bg-[#083575] hover:bg-[#06295c] dark:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                                    >
+                                        Tutup
+                                    </button>
+                                </div>
+                            @else
+                                <form wire:submit="submitPermohonan" class="space-y-3.5">
                                     <div>
-                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                                            Kode Token Akses <span class="text-rose-500">*</span>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                                            Nama Lengkap <span class="text-rose-500">*</span>
                                         </label>
                                         <input
                                             type="text"
-                                            wire:model="tokenInput"
-                                            placeholder="CONTOH: LS-ABCD-1234"
-                                            autofocus
-                                            style="text-transform: uppercase;"
-                                            class="w-full px-3 py-2.5 text-sm sm:text-base bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all font-mono font-bold tracking-widest text-center"
+                                            wire:model="namaLengkap"
+                                            placeholder="Nama Anda"
+                                            class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
                                         />
+                                        @error('namaLengkap') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
                                     </div>
 
-                                    @if($tokenError)
-                                        <div class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 font-medium">
-                                            {{ $tokenError }}
-                                        </div>
-                                    @endif
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                                            Instansi / Organisasi <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            wire:model="instansi"
+                                            placeholder="Nama Instansi"
+                                            class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
+                                        />
+                                        @error('instansi') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
+                                    </div>
 
-                                    <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                                                Email <span class="text-rose-500">*</span>
+                                            </label>
+                                            <input
+                                                type="email"
+                                                wire:model="email"
+                                                placeholder="email@gmail.com"
+                                                class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
+                                            />
+                                            @error('email') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                                                No. WhatsApp <span class="text-rose-500">*</span>
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                wire:model="telepon"
+                                                placeholder="08xxxxxxxxxx"
+                                                class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
+                                            />
+                                            @error('telepon') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                                            Keperluan
+                                        </label>
+                                        <textarea
+                                            rows="2"
+                                            wire:model="keperluan"
+                                            placeholder="Tujuan permohonan berkas (opsional)..."
+                                            class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
+                                        ></textarea>
+                                        @error('keperluan') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div class="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
                                         <button
                                             type="button"
-                                            wire:click="setModalTab('form')"
-                                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium transition-colors cursor-pointer"
+                                            @click="modalTab = 'token'"
+                                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
                                         >
-                                            ← Formulir
+                                            <svg class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                                            </svg>
+                                            <span>Punya Token</span>
                                         </button>
 
                                         <div class="flex items-center gap-2">
                                             <button
                                                 type="button"
-                                                wire:click="closeModal"
-                                                class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                                                @click="showModal = false"
+                                                class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
                                             >
                                                 Batal
                                             </button>
                                             <button
                                                 type="submit"
                                                 wire:loading.attr="disabled"
-                                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                                                class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#083575] hover:bg-[#06295c] dark:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                                             >
-                                                <span wire:loading.remove wire:target="verifyAndDownloadToken">Unduh Berkas</span>
-                                                <span wire:loading wire:target="verifyAndDownloadToken">Memeriksa...</span>
+                                                <span wire:loading.remove wire:target="submitPermohonan">Kirim</span>
+                                                <span wire:loading wire:target="submitPermohonan">Mengirim...</span>
                                             </button>
                                         </div>
                                     </div>
                                 </form>
-                            @else
-                                {{-- VIEW FORMULIR PENGAJUAN --}}
-                                @if($isSubmitted)
-                                    <div class="text-center py-4">
-                                        <div class="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3">
-                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                        </div>
-                                        <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">Permohonan Terkirim</h4>
-                                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5">
-                                            {{ $successMessage }}
-                                        </p>
-                                        <button
-                                            type="button"
-                                            wire:click="closeModal"
-                                            class="px-5 py-2 rounded-xl bg-[#083575] hover:bg-[#06295c] dark:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
-                                        >
-                                            Tutup
-                                        </button>
-                                    </div>
-                                @else
-                                    <form wire:submit="submitPermohonan" class="space-y-3.5">
-                                        <div>
-                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                                                Nama Lengkap <span class="text-rose-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                wire:model="namaLengkap"
-                                                placeholder="Nama Anda"
-                                                class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
-                                            />
-                                            @error('namaLengkap') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                                                Instansi / Organisasi <span class="text-rose-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                wire:model="instansi"
-                                                placeholder="Nama Instansi"
-                                                class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
-                                            />
-                                            @error('instansi') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
-                                        </div>
-
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            <div>
-                                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                                                    Email <span class="text-rose-500">*</span>
-                                                </label>
-                                                <input
-                                                    type="email"
-                                                    wire:model="email"
-                                                    placeholder="email@gmail.com"
-                                                    class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
-                                                />
-                                                @error('email') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
-                                            </div>
-
-                                            <div>
-                                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                                                    No. WhatsApp <span class="text-rose-500">*</span>
-                                                </label>
-                                                <input
-                                                    type="tel"
-                                                    wire:model="telepon"
-                                                    placeholder="08xxxxxxxxxx"
-                                                    class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
-                                                />
-                                                @error('telepon') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                                                Keperluan
-                                            </label>
-                                            <textarea
-                                                rows="2"
-                                                wire:model="keperluan"
-                                                placeholder="Tujuan permohonan berkas (opsional)..."
-                                                class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 outline-none transition-all"
-                                            ></textarea>
-                                            @error('keperluan') <span class="text-xs text-rose-600 dark:text-rose-400 mt-1 block font-medium">{{ $message }}</span> @enderror
-                                        </div>
-
-                                        <div class="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
-                                            <button
-                                                type="button"
-                                                wire:click="setModalTab('token')"
-                                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
-                                            >
-                                                <svg class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                                                </svg>
-                                                <span>Punya Token</span>
-                                            </button>
-
-                                            <div class="flex items-center gap-2">
-                                                <button
-                                                    type="button"
-                                                    wire:click="closeModal"
-                                                    class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
-                                                >
-                                                    Batal
-                                                </button>
-                                                <button
-                                                    type="submit"
-                                                    wire:loading.attr="disabled"
-                                                    class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#083575] hover:bg-[#06295c] dark:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-                                                >
-                                                    <span wire:loading.remove wire:target="submitPermohonan">Kirim</span>
-                                                    <span wire:loading wire:target="submitPermohonan">Mengirim...</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                @endif
                             @endif
                         </div>
                     </div>
                 </div>
             </div>
-        @endif
+        </div>
     @endif
 </div>

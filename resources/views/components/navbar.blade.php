@@ -17,7 +17,6 @@ $navItems = [
         'id' => 'ebook',
         'label' => 'E-Book',
         'url' => $isHome ? '#ebook' : route('home') . '#ebook',
-        'badge' => 'Baru',
         'is_active' => ($active === 'E-Book' || $active === 'Koleksi E-Book' || request()->routeIs('ebooks.*')),
     ],
     [
@@ -166,19 +165,6 @@ $navItems = [
                         @endif
                     </a>
                 @endforeach
-
-                {{-- Baris Theme Switch di Mobile Drawer --}}
-                <div class="pt-2 mt-1 border-t border-[#f1f5f9] dark:border-slate-800 flex items-center justify-between px-3.5 py-1.5">
-                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Mode Tema</span>
-                    <button
-                        type="button"
-                        onclick="window.toggleTheme()"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E6ECF5] dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 transition-colors"
-                    >
-                        <span class="dark:hidden flex items-center gap-1">🌙 Gelap</span>
-                        <span class="hidden dark:flex items-center gap-1">☀️ Terang</span>
-                    </button>
-                </div>
             </div>
         @endif
     </div>
