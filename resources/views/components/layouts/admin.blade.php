@@ -169,7 +169,16 @@
 </head>
 <body class="min-h-full bg-[#f8fafc] text-[#0f172a] antialiased font-sans selection:bg-[#0284c7] selection:text-white">
     <div id="admin-nav-progress"></div>
-    <div class="flex min-h-screen">
+    <div x-data="{ sidebarOpen: false }" class="flex min-h-screen">
+        {{-- Mobile Backdrop Overlay --}}
+        <div 
+            x-show="sidebarOpen" 
+            x-cloak
+            @click="sidebarOpen = false" 
+            x-transition.opacity
+            class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 lg:hidden"
+        ></div>
+
         {{-- Sidebar --}}
         <x-admin.sidebar :active="$active" />
 
@@ -177,7 +186,7 @@
         <div class="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
             <x-admin.header :title="$active" />
 
-            <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
                 {{ $slot }}
             </main>
         </div>

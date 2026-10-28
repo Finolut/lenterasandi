@@ -268,12 +268,10 @@
                             <div
                                 x-data
                                 x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
-                                class="group flex flex-col shrink-0 select-none"
-                                style="width: 165px; min-width: 165px; max-width: 165px;"
+                                class="group flex flex-col w-full max-w-[170px] mx-auto select-none"
                             >
                                 <div
-                                    class="relative bg-[#f8fafc] dark:bg-slate-900 rounded-lg shadow-xs group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-200 border border-[#e2e8f0] dark:border-slate-800 overflow-hidden"
-                                    style="width: 165px; height: 240px; overflow: hidden;"
+                                    class="relative w-full aspect-[2/3] bg-[#f8fafc] dark:bg-slate-900 rounded-lg shadow-xs group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-200 border border-[#e2e8f0] dark:border-slate-800 overflow-hidden"
                                 >
                                     <a href="{{ $detailUrl }}" wire:navigate.hover class="block w-full h-full relative cursor-pointer">
                                         @if($coverSrc)

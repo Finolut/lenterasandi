@@ -101,7 +101,7 @@
                                 {{-- Info Buku --}}
                                 <div class="p-3.5 flex flex-col flex-1 gap-1.5">
                                     <div>
-                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium border border-[#38bdf8] dark:border-sky-800 text-[#0284c7] dark:text-sky-300 bg-[#f0f9ff] dark:bg-sky-950/60">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium border border-[#38bdf8] dark:border-sky-800 text-[#0284c7] dark:text-sky-300 bg-[#f0f9ff] dark:bg-sky-950/60 truncate max-w-full">
                                             {{ $book->kategori }}
                                         </span>
                                     </div>

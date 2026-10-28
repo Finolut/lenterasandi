@@ -49,20 +49,34 @@ $navItems = [
 ];
 @endphp
 
-<aside class="w-64 h-screen sticky top-0 self-start bg-[#0a1224] text-slate-400 flex flex-col shrink-0 border-r border-[#1e293b] select-none z-40 transition-all duration-200 overflow-hidden">
+<aside 
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+    class="fixed lg:sticky top-0 left-0 w-64 h-screen self-start bg-[#0a1224] text-slate-400 flex flex-col shrink-0 border-r border-[#1e293b] select-none z-50 lg:z-40 transition-transform duration-250 ease-in-out overflow-hidden shadow-2xl lg:shadow-none"
+>
     {{-- Header / Brand Section (h-16 to perfectly align with topbar) --}}
-    <div class="h-16 px-5 border-b border-[#1e293b] bg-[#070d1a] flex items-center shrink-0">
-        <div class="flex items-center gap-3">
+    <div class="h-16 px-5 border-b border-[#1e293b] bg-[#070d1a] flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
             <div class="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 shadow-xs">
                 <img src="{{ asset('assets/images/logo.png') }}" alt="Lentera Sandi" class="w-full h-full object-contain">
             </div>
-            <div class="leading-tight">
-                <a href="{{ route('admin.dashboard') }}" wire:navigate class="font-bold text-white tracking-tight hover:text-[#38bdf8] text-sm flex items-center transition-colors">
+            <div class="leading-tight truncate">
+                <a href="{{ route('admin.dashboard') }}" wire:navigate @click="sidebarOpen = false" class="font-bold text-white tracking-tight hover:text-[#38bdf8] text-sm flex items-center transition-colors">
                     LENTERA<span class="text-[#38bdf8] ml-0.5">SANDI</span>
                 </a>
                 <div class="text-[10px] text-slate-400 font-medium">Panel Administrasi</div>
             </div>
         </div>
+
+        <button 
+            type="button" 
+            @click="sidebarOpen = false" 
+            class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            title="Tutup Menu"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
     </div>
 
     {{-- Navigation Menu --}}
@@ -80,6 +94,7 @@ $navItems = [
                     <a
                         href="{{ route($item['route']) }}"
                         wire:navigate
+                        @click="sidebarOpen = false"
                         class="flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-150 {{ $isActive ? 'bg-[#0284c7] text-white shadow-xs font-semibold' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}"
                     >
                         <div class="flex items-center gap-2.5 min-w-0">
