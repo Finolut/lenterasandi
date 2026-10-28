@@ -87,7 +87,7 @@ class EbookManager extends Component
     private function getQuery()
     {
         return Ebook::query()
-            ->select(['id', 'judul', 'kategori', 'pengarang', 'status', 'cover_image', 'file_url', 'jumlah_unduhan', 'created_at'])
+            ->select(['id', 'judul', 'kategori', 'pengarang', 'status', 'cover_url', 'file_url', 'jumlah_unduhan', 'created_at'])
             ->when($this->search, fn($q) =>
                 $q->where(fn($q2) =>
                     $q2->where('judul', 'ilike', '%'.$this->search.'%')

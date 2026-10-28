@@ -68,7 +68,7 @@ class NewsManager extends Component
     public function getFilteredNewsProperty()
     {
         return Informasi::query()
-            ->select(['id', 'judul', 'kategori', 'status', 'gambar', 'published_at', 'jumlah_dilihat', 'created_by', 'created_at'])
+            ->select(['id', 'judul', 'kategori', 'status', 'gambar_url', 'published_at', 'jumlah_dilihat', 'created_by', 'created_at'])
             ->when($this->search !== '', function ($query) {
                 $query->where(function ($query) {
                     $query->where('judul', 'like', '%' . $this->search . '%')
