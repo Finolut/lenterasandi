@@ -3,10 +3,6 @@
     <div class="rounded-xl bg-[#083575] text-white px-6 py-5 sm:px-7 sm:py-6 shadow-xs border border-[#0b489a]">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/10 text-sky-200 text-xs font-medium mb-2 border border-white/10">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    <span>Sistem Aktif &bull; Diskominfo Provinsi Jawa Timur</span>
-                </div>
                 <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
                     Dashboard Administrasi Lentera Sandi
                 </h1>
@@ -23,7 +19,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    <span>Tambah E-Book</span>
+                    <span>Tambah & Tulis E-Book</span>
                 </a>
                 <a
                     href="{{ route('admin.informasi.create') }}"
