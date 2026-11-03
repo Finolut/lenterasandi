@@ -63,7 +63,7 @@
     <!-- PDF.js Same-Origin Local Asset (Deferred and Cached for instant SPA navigation) -->
     <script defer data-navigate-once src="{{ asset('vendor/pdfjs/pdf.min.js') }}"></script>
     <script data-navigate-once>
-        window.renderPdfCovers = async function() {
+        window.renderPdfCovers = function() {
             if (typeof pdfjsLib === 'undefined') {
                 setTimeout(window.renderPdfCovers, 150);
                 return;
@@ -75,7 +75,8 @@
             const items = document.querySelectorAll('.pdf-cover-wrap[data-pdf-url]:not([data-rendered="true"])');
             if (items.length === 0) return;
 
-            items.forEach(async (el) => {
+            const renderItem = async (el) => {
+                if (el.getAttribute('data-rendered') === 'true') return;
                 el.setAttribute('data-rendered', 'true');
                 const url = el.getAttribute('data-pdf-url');
                 if (!url) return;
@@ -151,7 +152,27 @@
                         `;
                     }
                 }
-            });
+            };
+
+            // Use IntersectionObserver so PDF files are ONLY loaded when scrolled into view
+            if ('IntersectionObserver' in window) {
+                if (!window._pdfCoverObserver) {
+                    window._pdfCoverObserver = new IntersectionObserver((entries, observer) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                observer.unobserve(entry.target);
+                                renderItem(entry.target);
+                            }
+                        });
+                    }, {
+                        rootMargin: '100px 0px',
+                        threshold: 0.01
+                    });
+                }
+                items.forEach(el => window._pdfCoverObserver.observe(el));
+            } else {
+                items.forEach(el => renderItem(el));
+            }
         };
 
         // Attach event triggers
