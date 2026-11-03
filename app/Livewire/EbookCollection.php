@@ -3,6 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\Ebook;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -12,11 +15,15 @@ class EbookCollection extends Component
 {
     use WithPagination;
 
-    public string $search           = '';
+    public string $search = '';
+
     public string $selectedCategory = 'Semua';
-    public string $sortBy           = 'Terbaru';
-    public string $viewMode         = 'grid';
-    public bool $isSearchOpen       = false;
+
+    public string $sortBy = 'Terbaru';
+
+    public string $viewMode = 'grid';
+
+    public bool $isSearchOpen = false;
 
     public array $categories = [];
 
@@ -31,24 +38,26 @@ class EbookCollection extends Component
 
     public function getAvailableCategories(): array
     {
-        $rawCategories = Ebook::where('status', 'Publik')
-            ->whereNotNull('kategori')
-            ->where('kategori', '!=', '')
-            ->pluck('kategori');
+        return Cache::remember('ebook_public_categories', now()->addMinutes(10), function (): array {
+            $rawCategories = Ebook::where('status', 'Publik')
+                ->whereNotNull('kategori')
+                ->where('kategori', '!=', '')
+                ->pluck('kategori');
 
-        $categories = [];
-        foreach ($rawCategories as $raw) {
-            foreach (explode(',', $raw) as $c) {
-                $c = trim($c);
-                if ($c !== '' && !in_array($c, $categories, true)) {
-                    $categories[] = $c;
+            $categories = [];
+            foreach ($rawCategories as $raw) {
+                foreach (explode(',', $raw) as $c) {
+                    $c = trim($c);
+                    if ($c !== '' && ! in_array($c, $categories, true)) {
+                        $categories[] = $c;
+                    }
                 }
             }
-        }
 
-        natcasesort($categories);
+            natcasesort($categories);
 
-        return array_values($categories);
+            return array_values($categories);
+        });
     }
 
     public function mount(?string $category = null): void
@@ -59,7 +68,7 @@ class EbookCollection extends Component
         if ($category) {
             $catTrimmed = strtolower(trim($category));
             foreach ($available as $c) {
-                if (\Illuminate\Support\Str::slug($c) === $catTrimmed || strcasecmp($c, $category) === 0) {
+                if (Str::slug($c) === $catTrimmed || strcasecmp($c, $category) === 0) {
                     $this->selectedCategory = $c;
                     break;
                 }
@@ -90,8 +99,8 @@ class EbookCollection extends Component
 
     public function toggleSearch(): void
     {
-        $this->isSearchOpen = !$this->isSearchOpen;
-        if (!$this->isSearchOpen) {
+        $this->isSearchOpen = ! $this->isSearchOpen;
+        if (! $this->isSearchOpen) {
             $this->search = '';
             $this->resetPage();
         }
@@ -100,12 +109,12 @@ class EbookCollection extends Component
     public function resetFilters(): void
     {
         $this->selectedCategory = 'Semua';
-        $this->search           = '';
-        $this->isSearchOpen     = false;
+        $this->search = '';
+        $this->isSearchOpen = false;
         $this->resetPage();
     }
 
-    private function getQuery(): \Illuminate\Database\Eloquent\Builder
+    private function getQuery(): Builder
     {
         $query = Ebook::query()->where('status', 'Publik');
 
@@ -113,9 +122,9 @@ class EbookCollection extends Component
             $s = trim($this->search);
             $query->where(function ($q) use ($s) {
                 $q->where('judul', 'ilike', "%{$s}%")
-                  ->orWhere('deskripsi', 'ilike', "%{$s}%")
-                  ->orWhere('pengarang', 'ilike', "%{$s}%")
-                  ->orWhere('kategori', 'ilike', "%{$s}%");
+                    ->orWhere('deskripsi', 'ilike', "%{$s}%")
+                    ->orWhere('pengarang', 'ilike', "%{$s}%")
+                    ->orWhere('kategori', 'ilike', "%{$s}%");
             });
         }
 
@@ -123,19 +132,19 @@ class EbookCollection extends Component
             $cat = $this->selectedCategory;
             $query->where(function ($q) use ($cat) {
                 $q->where('kategori', $cat)
-                  ->orWhere('kategori', 'like', "{$cat},%")
-                  ->orWhere('kategori', 'like', "%, {$cat},%")
-                  ->orWhere('kategori', 'like', "%, {$cat}")
-                  ->orWhere('kategori', 'like', "%,{$cat},%")
-                  ->orWhere('kategori', 'like', "%,{$cat}");
+                    ->orWhere('kategori', 'like', "{$cat},%")
+                    ->orWhere('kategori', 'like', "%, {$cat},%")
+                    ->orWhere('kategori', 'like', "%, {$cat}")
+                    ->orWhere('kategori', 'like', "%,{$cat},%")
+                    ->orWhere('kategori', 'like', "%,{$cat}");
             });
         }
 
         match ($this->sortBy) {
-            'Terlama'               => $query->oldest(),
-            'Judul A-Z'             => $query->orderBy('judul'),
+            'Terlama' => $query->oldest(),
+            'Judul A-Z' => $query->orderBy('judul'),
             'Paling Banyak Diunduh' => $query->orderByDesc('jumlah_unduhan'),
-            default                 => $query->latest(),
+            default => $query->latest(),
         };
 
         return $query;
@@ -143,7 +152,7 @@ class EbookCollection extends Component
 
     public function getTotalCountProperty(): int
     {
-        return \Illuminate\Support\Facades\Cache::remember('ebook_total_count', 60, function () {
+        return Cache::remember('ebook_total_count', 60, function () {
             return Ebook::where('status', 'Publik')->count();
         });
     }
@@ -155,65 +164,42 @@ class EbookCollection extends Component
         $availableCategories = $this->getAvailableCategories();
 
         if ($isShelfMode) {
-            $builtShelves = [];
-
-            foreach ($availableCategories as $cat) {
+            $shelves = Cache::remember('ebook_public_shelves', now()->addMinutes(10), function () use ($availableCategories) {
+                // One lightweight query replaces two queries for every category.
                 $books = Ebook::where('status', 'Publik')
-                    ->where(function ($q) use ($cat) {
-                        $q->where('kategori', $cat)
-                          ->orWhere('kategori', 'like', "{$cat},%")
-                          ->orWhere('kategori', 'like', "%, {$cat},%")
-                          ->orWhere('kategori', 'like', "%, {$cat}")
-                          ->orWhere('kategori', 'like', "%,{$cat},%")
-                          ->orWhere('kategori', 'like', "%,{$cat}");
-                    })
+                    ->select(['id', 'judul', 'kategori', 'pengarang', 'tahun', 'file_url', 'cover_url', 'jumlah_unduhan', 'created_at'])
                     ->latest()
-                    ->take(12)
                     ->get();
 
-                $count = Ebook::where('status', 'Publik')
-                    ->where(function ($q) use ($cat) {
-                        $q->where('kategori', $cat)
-                          ->orWhere('kategori', 'like', "{$cat},%")
-                          ->orWhere('kategori', 'like', "%, {$cat},%")
-                          ->orWhere('kategori', 'like', "%, {$cat}")
-                          ->orWhere('kategori', 'like', "%,{$cat},%")
-                          ->orWhere('kategori', 'like', "%,{$cat}");
-                    })
-                    ->count();
+                $shelves = [];
+                foreach ($availableCategories as $category) {
+                    $categoryBooks = $books->filter(fn (Ebook $book) => in_array($category, $book->kategori_list, true));
 
-                if ($count > 0) {
-                    $builtShelves[] = [
-                        'name'  => $cat,
-                        'count' => $count,
-                        'books' => $books,
-                    ];
+                    if ($categoryBooks->isNotEmpty()) {
+                        $shelves[] = [
+                            'name' => $category,
+                            'count' => $categoryBooks->count(),
+                            'books' => $categoryBooks->take(12)->values(),
+                        ];
+                    }
                 }
-            }
 
-            // Fallback: If no category shelves built but public books exist
-            if (empty($builtShelves)) {
-                $allBooks = Ebook::where('status', 'Publik')->latest()->take(12)->get();
-                if ($allBooks->isNotEmpty()) {
-                    $builtShelves[] = [
-                        'name'  => 'Koleksi Terbaru',
-                        'count' => $allBooks->count(),
-                        'books' => $allBooks,
-                    ];
-                }
-            }
-
-            $shelves = $builtShelves;
+                return $shelves ?: ($books->isNotEmpty() ? [[
+                    'name' => 'Koleksi Terbaru',
+                    'count' => $books->count(),
+                    'books' => $books->take(12)->values(),
+                ]] : []);
+            });
         }
 
         // Only run paginated search/filter query when outside of shelf mode
         $ebooks = $isShelfMode ? null : $this->getQuery()->paginate(18);
 
         return view('pages.ebooks.index', [
-            'isShelfMode'   => $isShelfMode,
-            'shelves'       => $shelves,
-            'ebooks'        => $ebooks,
-            'totalCount'    => $this->totalCount,
+            'isShelfMode' => $isShelfMode,
+            'shelves' => $shelves,
+            'ebooks' => $ebooks,
+            'totalCount' => $this->totalCount,
             'navCategories' => $availableCategories,
         ]);
     }

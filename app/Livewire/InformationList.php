@@ -2,10 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Models\Informasi;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Informasi;
 
 #[Layout('components.layouts.app', ['active' => 'Informasi', 'title' => 'Informasi & Berita - Lentera Sandi', 'hideNavbar' => true])]
 class InformationList extends Component
@@ -13,6 +14,7 @@ class InformationList extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $sortBy = 'Terbaru';
 
     protected $paginationTheme = 'tailwind';
@@ -43,15 +45,20 @@ class InformationList extends Component
 
     public function getNewsListProperty()
     {
-        $query = Informasi::where('status', 'Publik');
+        $query = Informasi::where('status', 'Publik')
+            // List cards do not need the full article body. Keep a small fallback excerpt.
+            ->select([
+                'id', 'judul', 'gambar_url', 'kategori', 'published_at', 'jumlah_dilihat',
+                DB::raw('COALESCE(ringkasan, substr(konten, 1, 300)) as ringkasan'),
+            ]);
 
         if (! empty(trim($this->search))) {
-            $s = '%' . strtolower(trim($this->search)) . '%';
+            $s = '%'.strtolower(trim($this->search)).'%';
             $query->where(function ($q) use ($s) {
                 $q->whereRaw('LOWER(judul) like ?', [$s])
-                  ->orWhereRaw('LOWER(ringkasan) like ?', [$s])
-                  ->orWhereRaw('LOWER(konten) like ?', [$s])
-                  ->orWhereRaw('LOWER(kategori) like ?', [$s]);
+                    ->orWhereRaw('LOWER(ringkasan) like ?', [$s])
+                    ->orWhereRaw('LOWER(konten) like ?', [$s])
+                    ->orWhereRaw('LOWER(kategori) like ?', [$s]);
             });
         }
 
@@ -71,4 +78,3 @@ class InformationList extends Component
         ]);
     }
 }
-

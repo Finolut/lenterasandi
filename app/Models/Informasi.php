@@ -5,20 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 /**
- * @property int         $id
- * @property string      $judul
- * @property string      $slug
- * @property string      $konten
+ * @property int $id
+ * @property string $judul
+ * @property string $slug
+ * @property string $konten
  * @property string|null $ringkasan
  * @property string|null $gambar_url
- * @property string      $kategori
- * @property string      $status
+ * @property string $kategori
+ * @property string $status
  * @property Carbon|null $published_at
- * @property int         $jumlah_dilihat
- * @property int|null    $created_by
+ * @property int $jumlah_dilihat
+ * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -47,24 +50,28 @@ class Informasi extends Model
     ];
 
     protected $casts = [
-        'published_at'  => 'datetime',
-        'jumlah_dilihat'=> 'integer',
+        'published_at' => 'datetime',
+        'jumlah_dilihat' => 'integer',
     ];
 
     public const CATEGORIES = ['Pengumuman', 'Kegiatan', 'Informasi'];
-    public const STATUSES   = ['Publik', 'Draf', 'Disembunyikan'];
+
+    public const STATUSES = ['Publik', 'Draf', 'Disembunyikan'];
+
     public const AKSES_FILE = ['Publik', 'Perlu Ajukan'];
 
     protected static function booted(): void
     {
         static::saved(function () {
-            \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
-            \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
+            Cache::forget('home_recent_news');
+            Cache::forget('admin_sidebar_counts');
+            Cache::forget('admin_dashboard_kpis');
         });
 
         static::deleted(function () {
-            \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
-            \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
+            Cache::forget('home_recent_news');
+            Cache::forget('admin_sidebar_counts');
+            Cache::forget('admin_dashboard_kpis');
         });
     }
 
@@ -73,19 +80,19 @@ class Informasi extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function permohonanAkses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function permohonanAkses(): HasMany
     {
         return $this->hasMany(PermohonanAkses::class, 'informasi_id');
     }
 
-    public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function tokens(): HasMany
     {
         return $this->hasMany(BerkasToken::class, 'informasi_id');
     }
 
     public function hasFilePendukung(): bool
     {
-        return !empty($this->file_pendukung_url);
+        return ! empty($this->file_pendukung_url);
     }
 
     public function filePendukungIsPublik(): bool
@@ -106,13 +113,15 @@ class Informasi extends Model
         }
 
         $items = array_map('trim', explode(',', $this->kategori));
-        return array_values(array_filter($items, fn($c) => $c !== ''));
+
+        return array_values(array_filter($items, fn ($c) => $c !== ''));
     }
 
     /** Tanggal publish dalam format Indonesia */
     public function getTanggalPublishAttribute(): string
     {
         $date = $this->published_at ?? $this->created_at;
+
         return $date ? $date->locale('id')->translatedFormat('d M Y') : '—';
     }
 
@@ -127,6 +136,6 @@ class Informasi extends Model
             return $this->gambar_url;
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->gambar_url);
+        return Storage::disk('public')->url($this->gambar_url);
     }
 }

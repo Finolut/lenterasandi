@@ -9,8 +9,12 @@
 
 
 
-    $featuredEbooks = Ebook::where('status', 'Publik')->latest()->take(5)->get();
-    $recentNews = Informasi::where('status', 'Publik')->latest('published_at')->take(3)->get();
+    $featuredEbooks = Cache::remember('home_featured_ebooks', now()->addMinutes(10), fn () => Ebook::where('status', 'Publik')
+        ->select(['id', 'judul', 'kategori', 'file_url', 'cover_url', 'created_at'])
+        ->latest()->take(5)->get());
+    $recentNews = Cache::remember('home_recent_news', now()->addMinutes(10), fn () => Informasi::where('status', 'Publik')
+        ->select(['id', 'judul', 'ringkasan', 'gambar_url', 'kategori', 'published_at'])
+        ->latest('published_at')->take(3)->get());
 @endphp
 <x-layouts.app active="Beranda">
     {{-- HERO SECTION (INAgov Style) --}}
