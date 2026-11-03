@@ -159,45 +159,10 @@ class EbookCollection extends Component
 
     public function render()
     {
-        $isShelfMode = ($this->selectedCategory === 'Semua' && empty(trim($this->search)));
-        $shelves = [];
         $availableCategories = $this->getAvailableCategories();
-
-        if ($isShelfMode) {
-            $shelves = Cache::remember('ebook_public_shelves', now()->addMinutes(10), function () use ($availableCategories) {
-                // One lightweight query replaces two queries for every category.
-                $books = Ebook::where('status', 'Publik')
-                    ->select(['id', 'judul', 'kategori', 'pengarang', 'tahun', 'file_url', 'cover_url', 'jumlah_unduhan', 'created_at'])
-                    ->latest()
-                    ->get();
-
-                $shelves = [];
-                foreach ($availableCategories as $category) {
-                    $categoryBooks = $books->filter(fn (Ebook $book) => in_array($category, $book->kategori_list, true));
-
-                    if ($categoryBooks->isNotEmpty()) {
-                        $shelves[] = [
-                            'name' => $category,
-                            'count' => $categoryBooks->count(),
-                            'books' => $categoryBooks->take(12)->values(),
-                        ];
-                    }
-                }
-
-                return $shelves ?: ($books->isNotEmpty() ? [[
-                    'name' => 'Koleksi Terbaru',
-                    'count' => $books->count(),
-                    'books' => $books->take(12)->values(),
-                ]] : []);
-            });
-        }
-
-        // Only run paginated search/filter query when outside of shelf mode
-        $ebooks = $isShelfMode ? null : $this->getQuery()->paginate(18);
+        $ebooks = $this->getQuery()->paginate(18);
 
         return view('pages.ebooks.index', [
-            'isShelfMode' => $isShelfMode,
-            'shelves' => $shelves,
             'ebooks' => $ebooks,
             'totalCount' => $this->totalCount,
             'navCategories' => $availableCategories,
