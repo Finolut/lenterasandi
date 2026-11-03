@@ -478,22 +478,12 @@
                 </label>
                 <select
                     wire:model.live="status"
-                    class="w-full px-3 py-1.5 text-xs sm:text-sm bg-white border border-[#cbd5e1] rounded-lg text-[#0f172a] focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-all cursor-pointer font-medium mb-3"
+                    class="w-full px-3 py-1.5 text-xs sm:text-sm bg-white border border-[#cbd5e1] rounded-lg text-[#0f172a] focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-all cursor-pointer font-medium"
                 >
                     <option value="Publik">Publik</option>
                     <option value="Draf">Draf</option>
                     <option value="Disembunyikan">Disembunyikan</option>
                 </select>
-
-                <button
-                    wire:click="save"
-                    wire:loading.attr="disabled"
-                    wire:target="save"
-                    type="button"
-                    class="w-full py-2 rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-                >
-                    {{ $mode === 'add' ? 'Simpan E-Book' : 'Perbarui E-Book' }}
-                </button>
             </div>
 
             {{-- Dokumen PDF Card --}}
@@ -525,20 +515,51 @@
                                 Lihat ↗
                             </a>
                         </div>
-                        <label class="w-full block text-center py-1.5 text-xs font-semibold bg-white text-[#475569] border border-[#cbd5e1] rounded-md hover:bg-slate-100 cursor-pointer transition-colors">
-                            Ganti Berkas PDF
-                            <input type="file" wire:model="filePdf" accept=".pdf" class="hidden" />
-                        </label>
+                        <div
+                            x-data="{ isDropping: false }"
+                            @dragover.prevent="isDropping = true"
+                            @dragleave.prevent="isDropping = false"
+                            @drop.prevent="
+                                isDropping = false;
+                                if ($event.dataTransfer.files.length > 0) {
+                                    $refs.filePdfInput.files = $event.dataTransfer.files;
+                                    $refs.filePdfInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                }
+                            "
+                            :class="isDropping ? 'border-[#0284c7] bg-sky-50/50' : 'border-dashed border-[#cbd5e1] bg-white'"
+                            class="border rounded-md p-2 transition-colors"
+                        >
+                            <label class="w-full block text-center py-1.5 text-xs font-semibold text-[#475569] hover:bg-slate-100 rounded cursor-pointer transition-colors">
+                                Ganti Berkas PDF <span class="text-[10px] text-[#94a3b8] font-normal">(Klik / Seret PDF ke sini)</span>
+                                <input type="file" x-ref="filePdfInput" wire:model="filePdf" accept=".pdf" class="hidden" />
+                            </label>
+                        </div>
                     </div>
                 @else
-                    <label class="border border-dashed border-[#cbd5e1] hover:border-[#0284c7] bg-[#f8fafc] hover:bg-sky-50/40 rounded-lg p-4 text-center cursor-pointer flex flex-col items-center justify-center transition-colors">
-                        <svg class="w-6 h-6 text-[#64748b] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    <div
+                        x-data="{ isDropping: false }"
+                        @dragover.prevent="isDropping = true"
+                        @dragleave.prevent="isDropping = false"
+                        @drop.prevent="
+                            isDropping = false;
+                            if ($event.dataTransfer.files.length > 0) {
+                                $refs.filePdfInput.files = $event.dataTransfer.files;
+                                $refs.filePdfInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
+                        "
+                        :class="isDropping ? 'border-[#0284c7] bg-sky-50 ring-2 ring-[#0284c7]/30 scale-[1.01]' : 'border-[#cbd5e1] hover:border-[#0284c7] bg-[#f8fafc] hover:bg-sky-50/40'"
+                        class="border-2 border-dashed rounded-lg p-5 text-center cursor-pointer flex flex-col items-center justify-center transition-all relative"
+                        @click="$refs.filePdfInput.click()"
+                    >
+                        <svg class="w-7 h-7 text-[#0284c7] mb-1.5 transition-transform" :class="isDropping ? 'scale-110' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
-                        <span class="text-xs font-semibold text-[#0f172a]">Pilih File PDF</span>
-                        <span class="text-[11px] text-[#94a3b8] mt-0.5">Maks. 50 MB</span>
-                        <input type="file" wire:model="filePdf" accept=".pdf" class="hidden" />
-                    </label>
+                        <span class="text-xs font-semibold text-[#0f172a]">
+                            <span class="text-[#0284c7]">Klik untuk memilih</span> atau seret file PDF ke sini
+                        </span>
+                        <span class="text-[11px] text-[#64748b] mt-0.5">Format dokumen PDF (Maks. 50 MB)</span>
+                        <input type="file" x-ref="filePdfInput" wire:model="filePdf" accept=".pdf" class="hidden" />
+                    </div>
                 @endif
 
                 <div wire:loading wire:target="filePdf" class="text-[11px] text-[#0284c7] font-medium flex items-center gap-1 mt-2">
@@ -607,14 +628,30 @@
                             </div>
                         </div>
                     @else
-                        <label class="border border-dashed border-[#cbd5e1] hover:border-[#0284c7] bg-[#f8fafc] hover:bg-sky-50/40 rounded-lg p-3 text-center cursor-pointer flex flex-col items-center justify-center transition-colors">
-                            <svg class="w-5 h-5 text-[#64748b] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div
+                            x-data="{ isDropping: false }"
+                            @dragover.prevent="isDropping = true"
+                            @dragleave.prevent="isDropping = false"
+                            @drop.prevent="
+                                isDropping = false;
+                                if ($event.dataTransfer.files.length > 0) {
+                                    $refs.fileCoverInput.files = $event.dataTransfer.files;
+                                    $refs.fileCoverInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                }
+                            "
+                            :class="isDropping ? 'border-[#0284c7] bg-sky-50 ring-2 ring-[#0284c7]/30 scale-[1.01]' : 'border-[#cbd5e1] hover:border-[#0284c7] bg-[#f8fafc] hover:bg-sky-50/40'"
+                            class="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer flex flex-col items-center justify-center transition-all relative"
+                            @click="$refs.fileCoverInput.click()"
+                        >
+                            <svg class="w-6 h-6 text-[#0284c7] mb-1 transition-transform" :class="isDropping ? 'scale-110' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
-                            <span class="text-xs font-semibold text-[#0f172a]">Pilih Gambar Cover</span>
+                            <span class="text-xs font-semibold text-[#0f172a]">
+                                <span class="text-[#0284c7]">Pilih</span> atau seret cover ke sini
+                            </span>
                             <span class="text-[11px] text-[#94a3b8] mt-0.5">JPG, PNG, atau WebP</span>
-                            <input type="file" wire:model="fileCover" accept="image/*" class="hidden" />
-                        </label>
+                            <input type="file" x-ref="fileCoverInput" wire:model="fileCover" accept="image/*" class="hidden" />
+                        </div>
                     @endif
 
                     <div wire:loading wire:target="fileCover" class="text-[11px] text-[#0284c7] font-medium flex items-center gap-1 mt-2">
