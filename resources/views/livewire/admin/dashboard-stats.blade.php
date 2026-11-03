@@ -1,37 +1,13 @@
 <div class="space-y-6" x-data x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })">
     {{-- 1. Executive Portal Banner --}}
     <div class="rounded-xl bg-[#083575] text-white px-6 py-5 sm:px-7 sm:py-6 shadow-xs border border-[#0b489a]">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                    Dashboard Administrasi Lentera Sandi
-                </h1>
-                <p class="text-xs sm:text-sm text-slate-200 mt-1 max-w-2xl leading-relaxed">
-                    Pusat pengelolaan literasi keamanan siber, dokumen digital persandian, dan verifikasi permohonan akses publik.
-                </p>
-            </div>
-            <div class="flex items-center gap-2.5 shrink-0">
-                <a
-                    href="{{ route('admin.ebooks.create') }}"
-                    wire:navigate
-                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-semibold transition-colors shadow-xs"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span>Tambah & Tulis E-Book</span>
-                </a>
-                <a
-                    href="{{ route('admin.informasi.create') }}"
-                    wire:navigate
-                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors border border-white/15"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    <span>Tulis Artikel</span>
-                </a>
-            </div>
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                Dashboard Administrasi Lentera Sandi
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-200 mt-1 max-w-2xl leading-relaxed">
+                Pusat pengelolaan literasi keamanan siber, dokumen digital persandian, dan verifikasi permohonan akses publik.
+            </p>
         </div>
     </div>
 
