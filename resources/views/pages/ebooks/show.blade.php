@@ -271,13 +271,9 @@
                                     </div>
 
                                     <div class="mt-2 flex flex-col flex-1">
-                                        <a href="{{ $relDetailUrl }}" wire:navigate.hover class="font-semibold text-xs sm:text-[13px] text-[#1e293b] dark:text-slate-200 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-tight line-clamp-2 min-h-[2.25rem]" title="{{ $relBook->judul }}">
+                                        <a href="{{ $relDetailUrl }}" wire:navigate.hover class="font-semibold text-xs sm:text-[13px] text-[#1e293b] dark:text-slate-200 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-tight line-clamp-2" title="{{ $relBook->judul }}">
                                             {{ $relBook->judul }}
                                         </a>
-                                        <div class="mt-1 flex items-center justify-between pt-0.5 text-[#94a3b8] dark:text-slate-500">
-                                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] dark:text-slate-400">BOOK</span>
-                                            <a href="{{ $relDetailUrl }}" wire:navigate.hover class="w-4 h-4 rounded-full border border-[#cbd5e1] dark:border-slate-700 hover:border-[#38bdf8] hover:text-[#0284c7] text-[#94a3b8] dark:text-slate-400 flex items-center justify-center text-[10px] font-bold font-serif transition-colors">i</a>
-                                        </div>
                                     </div>
                                 </div>
                             @endforeach
