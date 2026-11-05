@@ -12,3 +12,6 @@ use Illuminate\Support\Facades\Schedule;
 // Jadwalkan ping otomatis ke Supabase setiap hari jam 01:00 UTC (08:00 WIB)
 Schedule::command('supabase:ping')->dailyAt('01:00');
 
+// Jadwalkan sinkronisasi artikel otomatis dari Diskominfo Jatim setiap hari jam 06:00 WIB
+Schedule::command('artikel:sync-jatimprov --limit=10')->dailyAt('06:00');
+

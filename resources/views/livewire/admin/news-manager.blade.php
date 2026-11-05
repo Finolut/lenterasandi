@@ -10,13 +10,66 @@
             </div>
             <p class="text-xs sm:text-sm text-slate-500 mt-1">Publikasi siaran pers, artikel edukasi keamanan siber, agenda kegiatan, dan pengumuman kedinasan.</p>
         </div>
-        <a href="{{ route('admin.informasi.create') }}" wire:navigate.hover class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition-colors cursor-pointer shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-            </svg>
-            <span>Tambah Artikel</span>
-        </a>
+        <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <button
+                type="button"
+                wire:click="syncJatimprovNews"
+                wire:loading.attr="disabled"
+                class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-lg border border-slate-300 shadow-xs transition-colors cursor-pointer shrink-0 disabled:opacity-60"
+                title="Ambil berita terbaru secara otomatis dari portal resmi Diskominfo Jawa Timur"
+            >
+                <svg wire:loading.remove wire:target="syncJatimprovNews" class="w-4 h-4 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <svg wire:loading wire:target="syncJatimprovNews" class="w-4 h-4 text-[#0284c7] animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span wire:loading.remove wire:target="syncJatimprovNews">Tarik dari Jatimprov</span>
+                <span wire:loading wire:target="syncJatimprovNews">Menyinkronkan...</span>
+            </button>
+            <a href="{{ route('admin.informasi.create') }}" wire:navigate.hover class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition-colors cursor-pointer shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Tambah Artikel</span>
+            </a>
+        </div>
     </div>
+
+    {{-- Flash Notifications --}}
+    @if(session()->has('success'))
+        <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-xs sm:text-sm text-emerald-800 flex items-center justify-between shadow-xs">
+            <div class="flex items-center gap-2 font-medium">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if(session()->has('info'))
+        <div class="rounded-xl bg-sky-50 border border-sky-200 px-4 py-3 text-xs sm:text-sm text-sky-800 flex items-center justify-between shadow-xs">
+            <div class="flex items-center gap-2 font-medium">
+                <svg class="w-4 h-4 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>{{ session('info') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if(session()->has('error'))
+        <div class="rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 text-xs sm:text-sm text-rose-800 flex items-center justify-between shadow-xs">
+            <div class="flex items-center gap-2 font-medium">
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
 
     {{-- Search + Filters Card --}}
     <div class="bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs">

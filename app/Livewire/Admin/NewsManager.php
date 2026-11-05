@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Informasi;
+use App\Services\JatimprovArticleService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -63,6 +64,24 @@ class NewsManager extends Component
         \Illuminate\Support\Facades\Cache::forget('admin_news_total');
         \Illuminate\Support\Facades\Cache::forget('admin_sidebar_counts');
         \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
+    }
+
+    public function syncJatimprovNews(JatimprovArticleService $service): void
+    {
+        $result = $service->sync(limit: 10);
+
+        if (! ($result['success'] ?? false)) {
+            session()->flash('error', $result['message'] ?? 'Gagal melakukan sinkronisasi artikel dari Diskominfo Jatim.');
+            return;
+        }
+
+        if ($result['imported'] > 0) {
+            session()->flash('success', "Berhasil mensinkronisasi {$result['imported']} artikel baru dari Diskominfo Jawa Timur!");
+        } else {
+            session()->flash('info', "Semua artikel terbaru ({$result['skipped']} artikel) sudah tersimpan di database.");
+        }
+
+        $this->resetPage();
     }
 
     public function getFilteredNewsProperty()
