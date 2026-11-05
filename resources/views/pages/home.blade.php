@@ -91,16 +91,17 @@
                 <div class="relative reveal-on-scroll reveal-delay-1">
 
                     {{-- Fade edges --}}
-                    <div class="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none hidden sm:block"></div>
-                    <div class="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none hidden sm:block"></div>
+                    <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none hidden sm:block"></div>
+                    <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none hidden sm:block"></div>
 
-                    {{-- Scrollable Track --}}
+                    {{-- Scrollable Track (infinite clone) --}}
                     <div
                         id="ebook-carousel"
-                        class="flex gap-4 sm:gap-5 overflow-x-auto pb-4 scroll-smooth cursor-grab active:cursor-grabbing select-none"
-                        style="scrollbar-width: none; -ms-overflow-style: none;"
+                        class="flex gap-4 sm:gap-5 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none"
+                        style="scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: auto;"
                     >
-                        @foreach($featuredEbooks as $book)
+                        {{-- Cards dirender dua kali: original + clone (untuk infinite loop) --}}
+                        @foreach([...$featuredEbooks, ...$featuredEbooks] as $book)
                             @php
                                 $coverSrc = $book->cover_image;
                                 $pdfSrc   = $book->file_url
@@ -112,9 +113,9 @@
                             <div
                                 x-data
                                 x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
-                                class="flex-none w-[160px] sm:w-[185px] md:w-[195px] bg-white dark:bg-slate-900 rounded-xl border border-[#e5e7eb] dark:border-slate-800 hover:border-[#BFDBFE] dark:hover:border-sky-700 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-200 group overflow-hidden flex flex-col"
+                                class="ebook-card flex-none w-[160px] sm:w-[185px] md:w-[195px] bg-white dark:bg-slate-900 rounded-xl border border-[#e5e7eb] dark:border-slate-800 hover:border-[#BFDBFE] dark:hover:border-sky-700 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-200 group overflow-hidden flex flex-col"
                             >
-                                <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover class="flex flex-col h-full cursor-pointer">
+                                <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover class="ebook-card-link flex flex-col h-full cursor-pointer">
 
                                     {{-- Cover --}}
                                     <div class="relative w-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center rounded-t-xl" style="aspect-ratio: 2/3;">
@@ -136,7 +137,6 @@
                                                 <svg class="w-12 h-12 mb-2 text-[#BFDBFE] dark:text-slate-700" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M6 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1.5H8V13zm0 3h5v1.5H8V16z"/>
                                                 </svg>
-                                                <span class="text-xs font-semibold text-[#93C5FD] dark:text-slate-500">E-Book</span>
                                             </div>
                                         @endif
 
@@ -148,23 +148,15 @@
                                         </div>
                                     </div>
 
-                                    {{-- Info --}}
-                                    <div class="p-3.5 flex flex-col flex-1 gap-1.5">
-                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-[#38bdf8] dark:border-sky-800 text-[#0284c7] dark:text-sky-300 bg-[#f0f9ff] dark:bg-sky-950/60 truncate max-w-full">
-                                            {{ $book->kategori }}
-                                        </span>
-                                        <h3 class="font-bold text-[13px] text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-3 mt-0.5">
+                                    {{-- Info (judul saja, tanpa badge kategori) --}}
+                                    <div class="p-3.5 flex flex-col flex-1">
+                                        <h3 class="font-bold text-[13px] text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-3">
                                             {{ $book->judul }}
                                         </h3>
                                     </div>
                                 </a>
                             </div>
                         @endforeach
-                    </div>
-
-                    {{-- Dot indicators --}}
-                    <div id="ebook-dots" class="flex items-center justify-center gap-2 mt-4">
-                        {{-- Dots generated by JS --}}
                     </div>
                 </div>
 
@@ -173,103 +165,97 @@
                     #ebook-carousel::-webkit-scrollbar { display: none; }
                 </style>
 
-                {{-- Carousel JS --}}
+                {{-- Carousel JS: Infinite Loop + Drag (threshold tinggi agar tidak mudah klik) --}}
                 <script>
                     (function () {
-                        const carousel  = document.getElementById('ebook-carousel');
-                        const prevBtn   = document.getElementById('ebook-prev');
-                        const nextBtn   = document.getElementById('ebook-next');
-                        const dotsWrap  = document.getElementById('ebook-dots');
+                        const carousel = document.getElementById('ebook-carousel');
+                        const prevBtn  = document.getElementById('ebook-prev');
+                        const nextBtn  = document.getElementById('ebook-next');
 
                         if (!carousel) return;
 
-                        const CARD_GAP   = 20;   // px gap between cards
-                        const SCROLL_BY  = () => carousel.querySelector('[class*="flex-none"]')?.offsetWidth + CARD_GAP || 215;
+                        const GAP      = 20; // px, harus sesuai gap-4/gap-5
+                        const cardW    = () => (carousel.querySelector('.ebook-card')?.offsetWidth || 185) + GAP;
+                        const TOTAL    = {{ $featuredEbooks->count() }}; // jumlah card asli (sebelum di-clone)
 
-                        // ---- Dot indicators ----
-                        const cards      = carousel.querySelectorAll('[class*="flex-none"]');
-                        const totalCards = cards.length;
-                        let dots         = [];
-
-                        if (dotsWrap && totalCards > 0) {
-                            cards.forEach((_, i) => {
-                                const dot = document.createElement('button');
-                                dot.setAttribute('aria-label', 'Slide ' + (i + 1));
-                                dot.className = 'w-2 h-2 rounded-full transition-all duration-200 ' + (i === 0 ? 'bg-[#083575] dark:bg-sky-400 scale-125' : 'bg-[#cbd5e1] dark:bg-slate-600');
-                                dot.addEventListener('click', () => {
-                                    carousel.scrollTo({ left: i * SCROLL_BY(), behavior: 'smooth' });
-                                });
-                                dotsWrap.appendChild(dot);
-                                dots.push(dot);
-                            });
+                        // Mulai di titik tengah (set A ke-2) agar bisa scroll dua arah
+                        function initScroll() {
+                            carousel.scrollLeft = TOTAL * cardW();
                         }
+                        initScroll();
 
-                        function updateControls() {
-                            const max = carousel.scrollWidth - carousel.clientWidth;
-                            if (prevBtn) prevBtn.disabled = carousel.scrollLeft <= 4;
-                            if (nextBtn) nextBtn.disabled = carousel.scrollLeft >= max - 4;
-
-                            // Update dots
-                            if (dots.length > 0) {
-                                const idx = Math.round(carousel.scrollLeft / SCROLL_BY());
-                                dots.forEach((d, i) => {
-                                    if (i === idx) {
-                                        d.className = d.className.replace('bg-[#cbd5e1] dark:bg-slate-600', '').trim();
-                                        d.classList.add('bg-[#083575]', 'dark:bg-sky-400', 'scale-125');
-                                    } else {
-                                        d.classList.remove('bg-[#083575]', 'scale-125');
-                                        d.classList.add('bg-[#cbd5e1]');
-                                    }
-                                });
+                        // ---- Infinite loop via scroll watch ----
+                        carousel.addEventListener('scroll', () => {
+                            const halfW = TOTAL * cardW();
+                            // Sudah sampai ujung kanan set clone → lompat ke set asli
+                            if (carousel.scrollLeft >= halfW * 2 - carousel.clientWidth / 2) {
+                                carousel.scrollLeft -= halfW;
                             }
-                        }
+                            // Sudah sampai ujung kiri → lompat ke set clone
+                            if (carousel.scrollLeft <= carousel.clientWidth / 2) {
+                                carousel.scrollLeft += halfW;
+                            }
+                        }, { passive: true });
 
-                        carousel.addEventListener('scroll', updateControls, { passive: true });
-                        updateControls();
-
-                        if (prevBtn) prevBtn.addEventListener('click', () => carousel.scrollBy({ left: -SCROLL_BY(), behavior: 'smooth' }));
-                        if (nextBtn) nextBtn.addEventListener('click', () => carousel.scrollBy({ left:  SCROLL_BY(), behavior: 'smooth' }));
+                        // ---- Tombol prev / next ----
+                        if (prevBtn) prevBtn.addEventListener('click', () => {
+                            carousel.scrollBy({ left: -cardW(), behavior: 'smooth' });
+                        });
+                        if (nextBtn) nextBtn.addEventListener('click', () => {
+                            carousel.scrollBy({ left:  cardW(), behavior: 'smooth' });
+                        });
 
                         // ---- Drag to scroll (mouse) ----
-                        let isDragging = false, startX = 0, startScroll = 0;
+                        // threshold: geser > 12px baru dianggap drag (bukan klik)
+                        const DRAG_THRESHOLD = 12;
+                        let isDragging = false, hasDragged = false, startX = 0, startScroll = 0;
 
                         carousel.addEventListener('mousedown', e => {
                             isDragging  = true;
+                            hasDragged  = false;
                             startX      = e.pageX - carousel.offsetLeft;
                             startScroll = carousel.scrollLeft;
-                            carousel.style.scrollBehavior = 'auto';
                         });
 
                         document.addEventListener('mouseup', () => {
                             isDragging = false;
-                            carousel.style.scrollBehavior = '';
                         });
 
                         carousel.addEventListener('mousemove', e => {
                             if (!isDragging) return;
-                            e.preventDefault();
-                            const x     = e.pageX - carousel.offsetLeft;
-                            const walk  = (x - startX) * 1.4;
-                            carousel.scrollLeft = startScroll - walk;
+                            const x    = e.pageX - carousel.offsetLeft;
+                            const walk = (x - startX) * 1.5;
+                            if (Math.abs(walk) > DRAG_THRESHOLD) {
+                                hasDragged = true;
+                                e.preventDefault();
+                                carousel.scrollLeft = startScroll - walk;
+                            }
                         });
 
-                        // Prevent link navigation after drag
+                        // Blokir klik kalau sudah drag (threshold 12px)
                         carousel.addEventListener('click', e => {
-                            if (Math.abs(carousel.scrollLeft - startScroll) > 5) {
+                            if (hasDragged) {
                                 e.preventDefault();
+                                e.stopPropagation();
+                                hasDragged = false;
                             }
                         }, true);
 
-                        // Touch swipe support
-                        let touchStartX = 0, touchScroll = 0;
+                        // ---- Touch swipe support ----
+                        let touchStartX = 0, touchScroll = 0, touchMoved = false;
                         carousel.addEventListener('touchstart', e => {
                             touchStartX = e.touches[0].clientX;
                             touchScroll = carousel.scrollLeft;
+                            touchMoved  = false;
                         }, { passive: true });
                         carousel.addEventListener('touchmove', e => {
                             const delta = touchStartX - e.touches[0].clientX;
+                            if (Math.abs(delta) > 8) touchMoved = true;
                             carousel.scrollLeft = touchScroll + delta;
                         }, { passive: true });
+                        carousel.addEventListener('touchend', e => {
+                            if (touchMoved) e.preventDefault();
+                        });
                     })();
                 </script>
 
