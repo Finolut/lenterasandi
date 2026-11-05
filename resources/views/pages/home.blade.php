@@ -11,7 +11,7 @@
 
     $featuredEbooks = Cache::remember('home_featured_ebooks', now()->addMinutes(10), fn () => Ebook::where('status', 'Publik')
         ->select(['id', 'judul', 'kategori', 'file_url', 'cover_url', 'created_at'])
-        ->latest()->take(5)->get());
+        ->latest()->take(6)->get());
     $recentNews = Cache::remember('home_recent_news', now()->addMinutes(10), fn () => Informasi::where('status', 'Publik')
         ->select(['id', 'judul', 'ringkasan', 'gambar_url', 'kategori', 'published_at'])
         ->latest('published_at')->take(3)->get());
@@ -46,78 +46,233 @@
         <div class="h-60 sm:h-72 md:h-84 w-full pointer-events-none"></div>
     </section>
 
-    {{-- SECTION: KOLEKSI E-BOOK --}}
+    {{-- SECTION: KOLEKSI E-BOOK (Horizontal Scrollable Carousel) --}}
     <section id="ebook" class="bg-[#F8FAFC] dark:bg-[#070e1e] border-b border-[#E6ECF5] dark:border-slate-800 py-10 md:py-16 scroll-mt-24 md:scroll-mt-28 relative transition-colors duration-200">
         <div id="koleksi" class="absolute -top-24"></div>
         <div class="max-w-6xl mx-auto px-6">
+
+            {{-- Header Row --}}
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 reveal-on-scroll">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-[#083575] dark:text-sky-300">Koleksi E-Book Terbaru</h2>
                     <p class="text-xs sm:text-sm text-[#5A6A85] dark:text-slate-400 mt-1">Buku panduan resmi, standar keamanan, dan materi literasi persandian Diskominfo Jatim.</p>
                 </div>
-                <a href="{{ route('ebooks.index') }}" wire:navigate.hover class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1D68BD] dark:text-sky-400 hover:text-[#083575] dark:hover:text-sky-300 group">
-                    <span>Semua E-Book</span>
-                    <span class="group-hover:translate-x-1 transition-transform">→</span>
-                </a>
+                <div class="flex items-center gap-3 shrink-0">
+                    {{-- Nav Arrows --}}
+                    @if($featuredEbooks->count() > 0)
+                        <div class="flex items-center gap-1.5" id="ebook-carousel-controls">
+                            <button id="ebook-prev"
+                                aria-label="Sebelumnya"
+                                class="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 shadow-xs flex items-center justify-center text-[#083575] dark:text-sky-400 hover:bg-[#EFF6FF] dark:hover:bg-slate-700 hover:border-[#BFDBFE] dark:hover:border-sky-700 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </button>
+                            <button id="ebook-next"
+                                aria-label="Selanjutnya"
+                                class="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 shadow-xs flex items-center justify-center text-[#083575] dark:text-sky-400 hover:bg-[#EFF6FF] dark:hover:bg-slate-700 hover:border-[#BFDBFE] dark:hover:border-sky-700 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    @endif
+                    <a href="{{ route('ebooks.index') }}" wire:navigate.hover class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1D68BD] dark:text-sky-400 hover:text-[#083575] dark:hover:text-sky-300 group">
+                        <span>Semua E-Book</span>
+                        <span class="group-hover:translate-x-1 transition-transform">→</span>
+                    </a>
+                </div>
             </div>
-            
-            @if($featuredEbooks->count() > 0)
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 reveal-on-scroll reveal-delay-1">
-                    @foreach($featuredEbooks as $book)
-                        @php
-                            $coverSrc = $book->cover_image;
-                            $pdfSrc   = $book->file_url
-                                ? Storage::disk('public')->url($book->file_url)
-                                : null;
-                        @endphp
-                        <div
-                            x-data
-                            x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
-                            class="bg-white dark:bg-slate-900 rounded-lg border border-[#e5e7eb] dark:border-slate-800 hover:border-[#cbd5e1] dark:hover:border-slate-700 hover:shadow-md transition-all duration-200 group overflow-hidden {{ $loop->iteration > 4 ? 'hidden sm:flex' : 'flex' }} flex-col h-full w-full max-w-[200px] mx-auto sm:mx-0"
-                        >
-                            <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover class="flex flex-col h-full cursor-pointer">
-                                {{-- Cover Buku --}}
-                                <div class="relative w-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center" style="aspect-ratio: 2/3;">
-                                    @if($coverSrc)
-                                        <img src="{{ $coverSrc }}" alt="{{ $book->judul }}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" loading="lazy">
-                                    @elseif($pdfSrc)
-                                        <div class="pdf-cover-wrap relative w-full h-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden flex items-center justify-center" data-pdf-url="{{ $pdfSrc }}">
-                                            <div class="pdf-skeleton absolute inset-0 bg-[#e2e8f0] dark:bg-slate-800 animate-pulse flex flex-col items-center justify-center text-[#94a3b8] dark:text-slate-400 gap-2 p-3">
-                                                <svg class="w-6 h-6 animate-spin text-[#64748b] dark:text-slate-400" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                <span class="text-[10px] font-mono text-[#64748b] dark:text-slate-400">Memuat...</span>
-                                            </div>
-                                            <img class="pdf-cover-img w-full h-full object-cover object-top hidden group-hover:scale-105 transition-transform duration-300" alt="{{ $book->judul }}">
-                                        </div>
-                                    @else
-                                        <div class="w-full h-full flex flex-col items-center justify-center bg-[#f1f5f9] dark:bg-slate-800 text-[#94a3b8] dark:text-slate-400 p-4 select-none">
-                                            <svg class="w-10 h-10 mb-2 stroke-current stroke-1 fill-none text-[#94a3b8] dark:text-slate-400" viewBox="0 0 24 24">
-                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                                            </svg>
-                                            <span class="text-xs font-medium text-[#64748b] dark:text-slate-400">E-Book</span>
-                                        </div>
-                                    @endif
-                                </div>
 
-                                {{-- Info Buku --}}
-                                <div class="p-3.5 flex flex-col flex-1 gap-1.5">
-                                    <div>
-                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium border border-[#38bdf8] dark:border-sky-800 text-[#0284c7] dark:text-sky-300 bg-[#f0f9ff] dark:bg-sky-950/60 truncate max-w-full">
+            @if($featuredEbooks->count() > 0)
+                {{-- Carousel Wrapper --}}
+                <div class="relative reveal-on-scroll reveal-delay-1">
+
+                    {{-- Fade edges --}}
+                    <div class="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none hidden sm:block"></div>
+                    <div class="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none hidden sm:block"></div>
+
+                    {{-- Scrollable Track --}}
+                    <div
+                        id="ebook-carousel"
+                        class="flex gap-4 sm:gap-5 overflow-x-auto pb-4 scroll-smooth cursor-grab active:cursor-grabbing select-none"
+                        style="scrollbar-width: none; -ms-overflow-style: none;"
+                    >
+                        @foreach($featuredEbooks as $book)
+                            @php
+                                $coverSrc = $book->cover_image;
+                                $pdfSrc   = $book->file_url
+                                    ? Storage::disk('public')->url($book->file_url)
+                                    : null;
+                            @endphp
+
+                            {{-- Kartu Buku --}}
+                            <div
+                                x-data
+                                x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
+                                class="flex-none w-[160px] sm:w-[185px] md:w-[195px] bg-white dark:bg-slate-900 rounded-xl border border-[#e5e7eb] dark:border-slate-800 hover:border-[#BFDBFE] dark:hover:border-sky-700 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-200 group overflow-hidden flex flex-col"
+                            >
+                                <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover class="flex flex-col h-full cursor-pointer">
+
+                                    {{-- Cover --}}
+                                    <div class="relative w-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center rounded-t-xl" style="aspect-ratio: 2/3;">
+                                        @if($coverSrc)
+                                            <img src="{{ $coverSrc }}" alt="{{ $book->judul }}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" loading="lazy" draggable="false">
+                                        @elseif($pdfSrc)
+                                            <div class="pdf-cover-wrap relative w-full h-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden flex items-center justify-center" data-pdf-url="{{ $pdfSrc }}">
+                                                <div class="pdf-skeleton absolute inset-0 bg-[#e2e8f0] dark:bg-slate-800 animate-pulse flex flex-col items-center justify-center text-[#94a3b8] dark:text-slate-400 gap-2 p-3">
+                                                    <svg class="w-6 h-6 animate-spin text-[#64748b] dark:text-slate-400" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span class="text-[10px] font-mono text-[#64748b] dark:text-slate-400">Memuat...</span>
+                                                </div>
+                                                <img class="pdf-cover-img w-full h-full object-cover object-top hidden group-hover:scale-105 transition-transform duration-300" alt="{{ $book->judul }}" draggable="false">
+                                            </div>
+                                        @else
+                                            <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] dark:from-slate-800 dark:to-slate-900 text-[#94a3b8] dark:text-slate-400 p-4 select-none">
+                                                <svg class="w-12 h-12 mb-2 text-[#BFDBFE] dark:text-slate-700" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M6 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1.5H8V13zm0 3h5v1.5H8V16z"/>
+                                                </svg>
+                                                <span class="text-xs font-semibold text-[#93C5FD] dark:text-slate-500">E-Book</span>
+                                            </div>
+                                        @endif
+
+                                        {{-- Hover overlay badge --}}
+                                        <div class="absolute inset-0 bg-[#083575]/0 group-hover:bg-[#083575]/10 dark:group-hover:bg-sky-900/20 transition-all duration-200 flex items-center justify-center rounded-t-xl">
+                                            <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white dark:bg-slate-800 text-[#083575] dark:text-sky-300 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md border border-[#BFDBFE] dark:border-sky-700">
+                                                Baca →
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {{-- Info --}}
+                                    <div class="p-3.5 flex flex-col flex-1 gap-1.5">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-[#38bdf8] dark:border-sky-800 text-[#0284c7] dark:text-sky-300 bg-[#f0f9ff] dark:bg-sky-950/60 truncate max-w-full">
                                             {{ $book->kategori }}
                                         </span>
+                                        <h3 class="font-bold text-[13px] text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-3 mt-0.5">
+                                            {{ $book->judul }}
+                                        </h3>
                                     </div>
-                                    <h3 class="font-bold text-sm text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-2 mt-0.5">
-                                        {{ $book->judul }}
-                                    </h3>
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
 
-                                </div>
-                            </a>
-                        </div>
-                    @endforeach
+                    {{-- Dot indicators --}}
+                    <div id="ebook-dots" class="flex items-center justify-center gap-2 mt-4">
+                        {{-- Dots generated by JS --}}
+                    </div>
                 </div>
+
+                {{-- Hide scrollbar CSS --}}
+                <style>
+                    #ebook-carousel::-webkit-scrollbar { display: none; }
+                </style>
+
+                {{-- Carousel JS --}}
+                <script>
+                    (function () {
+                        const carousel  = document.getElementById('ebook-carousel');
+                        const prevBtn   = document.getElementById('ebook-prev');
+                        const nextBtn   = document.getElementById('ebook-next');
+                        const dotsWrap  = document.getElementById('ebook-dots');
+
+                        if (!carousel) return;
+
+                        const CARD_GAP   = 20;   // px gap between cards
+                        const SCROLL_BY  = () => carousel.querySelector('[class*="flex-none"]')?.offsetWidth + CARD_GAP || 215;
+
+                        // ---- Dot indicators ----
+                        const cards      = carousel.querySelectorAll('[class*="flex-none"]');
+                        const totalCards = cards.length;
+                        let dots         = [];
+
+                        if (dotsWrap && totalCards > 0) {
+                            cards.forEach((_, i) => {
+                                const dot = document.createElement('button');
+                                dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+                                dot.className = 'w-2 h-2 rounded-full transition-all duration-200 ' + (i === 0 ? 'bg-[#083575] dark:bg-sky-400 scale-125' : 'bg-[#cbd5e1] dark:bg-slate-600');
+                                dot.addEventListener('click', () => {
+                                    carousel.scrollTo({ left: i * SCROLL_BY(), behavior: 'smooth' });
+                                });
+                                dotsWrap.appendChild(dot);
+                                dots.push(dot);
+                            });
+                        }
+
+                        function updateControls() {
+                            const max = carousel.scrollWidth - carousel.clientWidth;
+                            if (prevBtn) prevBtn.disabled = carousel.scrollLeft <= 4;
+                            if (nextBtn) nextBtn.disabled = carousel.scrollLeft >= max - 4;
+
+                            // Update dots
+                            if (dots.length > 0) {
+                                const idx = Math.round(carousel.scrollLeft / SCROLL_BY());
+                                dots.forEach((d, i) => {
+                                    if (i === idx) {
+                                        d.className = d.className.replace('bg-[#cbd5e1] dark:bg-slate-600', '').trim();
+                                        d.classList.add('bg-[#083575]', 'dark:bg-sky-400', 'scale-125');
+                                    } else {
+                                        d.classList.remove('bg-[#083575]', 'scale-125');
+                                        d.classList.add('bg-[#cbd5e1]');
+                                    }
+                                });
+                            }
+                        }
+
+                        carousel.addEventListener('scroll', updateControls, { passive: true });
+                        updateControls();
+
+                        if (prevBtn) prevBtn.addEventListener('click', () => carousel.scrollBy({ left: -SCROLL_BY(), behavior: 'smooth' }));
+                        if (nextBtn) nextBtn.addEventListener('click', () => carousel.scrollBy({ left:  SCROLL_BY(), behavior: 'smooth' }));
+
+                        // ---- Drag to scroll (mouse) ----
+                        let isDragging = false, startX = 0, startScroll = 0;
+
+                        carousel.addEventListener('mousedown', e => {
+                            isDragging  = true;
+                            startX      = e.pageX - carousel.offsetLeft;
+                            startScroll = carousel.scrollLeft;
+                            carousel.style.scrollBehavior = 'auto';
+                        });
+
+                        document.addEventListener('mouseup', () => {
+                            isDragging = false;
+                            carousel.style.scrollBehavior = '';
+                        });
+
+                        carousel.addEventListener('mousemove', e => {
+                            if (!isDragging) return;
+                            e.preventDefault();
+                            const x     = e.pageX - carousel.offsetLeft;
+                            const walk  = (x - startX) * 1.4;
+                            carousel.scrollLeft = startScroll - walk;
+                        });
+
+                        // Prevent link navigation after drag
+                        carousel.addEventListener('click', e => {
+                            if (Math.abs(carousel.scrollLeft - startScroll) > 5) {
+                                e.preventDefault();
+                            }
+                        }, true);
+
+                        // Touch swipe support
+                        let touchStartX = 0, touchScroll = 0;
+                        carousel.addEventListener('touchstart', e => {
+                            touchStartX = e.touches[0].clientX;
+                            touchScroll = carousel.scrollLeft;
+                        }, { passive: true });
+                        carousel.addEventListener('touchmove', e => {
+                            const delta = touchStartX - e.touches[0].clientX;
+                            carousel.scrollLeft = touchScroll + delta;
+                        }, { passive: true });
+                    })();
+                </script>
+
             @else
                 <div class="bg-white dark:bg-slate-900 rounded-2xl border border-[#E6ECF5] dark:border-slate-800 p-8 text-center text-[#5A6A85] dark:text-slate-400 text-sm reveal-on-scroll">
                     Belum ada e-book yang dipublikasikan.
