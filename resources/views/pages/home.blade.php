@@ -91,172 +91,193 @@
                 <div class="relative reveal-on-scroll reveal-delay-1">
 
                     {{-- Fade edges --}}
-                    <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none hidden sm:block"></div>
-                    <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none hidden sm:block"></div>
+                    <div class="absolute left-0 top-0 bottom-4 w-10 bg-gradient-to-r from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none"></div>
+                    <div class="absolute right-0 top-0 bottom-4 w-10 bg-gradient-to-l from-[#F8FAFC] dark:from-[#070e1e] to-transparent z-10 pointer-events-none"></div>
 
-                    {{-- Scrollable Track (infinite clone) --}}
-                    <div
-                        id="ebook-carousel"
-                        class="flex gap-4 sm:gap-5 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none"
-                        style="scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: auto;"
-                    >
-                        {{-- Cards dirender dua kali: original + clone (untuk infinite loop) --}}
-                        @foreach([...$featuredEbooks, ...$featuredEbooks] as $book)
-                            @php
-                                $coverSrc = $book->cover_image;
-                                $pdfSrc   = $book->file_url
-                                    ? Storage::disk('public')->url($book->file_url)
-                                    : null;
-                            @endphp
-
-                            {{-- Kartu Buku --}}
-                            <div
-                                x-data
-                                x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
-                                class="ebook-card flex-none w-[160px] sm:w-[185px] md:w-[195px] bg-white dark:bg-slate-900 rounded-xl border border-[#e5e7eb] dark:border-slate-800 hover:border-[#BFDBFE] dark:hover:border-sky-700 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-200 group overflow-hidden flex flex-col"
-                            >
-                                <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover class="ebook-card-link flex flex-col h-full cursor-pointer">
-
-                                    {{-- Cover --}}
-                                    <div class="relative w-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center rounded-t-xl" style="aspect-ratio: 2/3;">
-                                        @if($coverSrc)
-                                            <img src="{{ $coverSrc }}" alt="{{ $book->judul }}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" loading="lazy" draggable="false">
-                                        @elseif($pdfSrc)
-                                            <div class="pdf-cover-wrap relative w-full h-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden flex items-center justify-center" data-pdf-url="{{ $pdfSrc }}">
-                                                <div class="pdf-skeleton absolute inset-0 bg-[#e2e8f0] dark:bg-slate-800 animate-pulse flex flex-col items-center justify-center text-[#94a3b8] dark:text-slate-400 gap-2 p-3">
-                                                    <svg class="w-6 h-6 animate-spin text-[#64748b] dark:text-slate-400" fill="none" viewBox="0 0 24 24">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                    </svg>
-                                                    <span class="text-[10px] font-mono text-[#64748b] dark:text-slate-400">Memuat...</span>
+                    {{-- Outer: overflow-hidden (track pakai transform, bukan scroll) --}}
+                    <div id="ebook-outer" class="overflow-hidden pb-4 select-none" style="cursor: grab;">
+                        {{-- Track: transform-based infinite loop --}}
+                        <div id="ebook-track" class="flex gap-4 sm:gap-5" style="width: max-content; will-change: transform;">
+                            {{-- Cards dirender dua kali: original + clone --}}
+                            @foreach([...$featuredEbooks, ...$featuredEbooks] as $book)
+                                @php
+                                    $coverSrc = $book->cover_image;
+                                    $pdfSrc   = $book->file_url
+                                        ? Storage::disk('public')->url($book->file_url)
+                                        : null;
+                                @endphp
+                                <div
+                                    x-data
+                                    x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
+                                    class="ebook-card flex-none w-[160px] sm:w-[185px] md:w-[195px] bg-white dark:bg-slate-900 rounded-xl border border-[#e5e7eb] dark:border-slate-800 hover:border-[#BFDBFE] dark:hover:border-sky-700 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-200 group overflow-hidden flex flex-col"
+                                >
+                                    <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover class="ebook-card-link flex flex-col h-full">
+                                        {{-- Cover --}}
+                                        <div class="relative w-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center rounded-t-xl" style="aspect-ratio: 2/3;">
+                                            @if($coverSrc)
+                                                <img src="{{ $coverSrc }}" alt="{{ $book->judul }}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" loading="lazy" draggable="false">
+                                            @elseif($pdfSrc)
+                                                <div class="pdf-cover-wrap relative w-full h-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden flex items-center justify-center" data-pdf-url="{{ $pdfSrc }}">
+                                                    <div class="pdf-skeleton absolute inset-0 bg-[#e2e8f0] dark:bg-slate-800 animate-pulse flex flex-col items-center justify-center text-[#94a3b8] dark:text-slate-400 gap-2 p-3">
+                                                        <svg class="w-6 h-6 animate-spin text-[#64748b] dark:text-slate-400" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                        <span class="text-[10px] font-mono text-[#64748b] dark:text-slate-400">Memuat...</span>
+                                                    </div>
+                                                    <img class="pdf-cover-img w-full h-full object-cover object-top hidden group-hover:scale-105 transition-transform duration-300" alt="{{ $book->judul }}" draggable="false">
                                                 </div>
-                                                <img class="pdf-cover-img w-full h-full object-cover object-top hidden group-hover:scale-105 transition-transform duration-300" alt="{{ $book->judul }}" draggable="false">
-                                            </div>
-                                        @else
-                                            <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] dark:from-slate-800 dark:to-slate-900 text-[#94a3b8] dark:text-slate-400 p-4 select-none">
-                                                <svg class="w-12 h-12 mb-2 text-[#BFDBFE] dark:text-slate-700" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M6 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1.5H8V13zm0 3h5v1.5H8V16z"/>
-                                                </svg>
-                                            </div>
-                                        @endif
-
-                                        {{-- Hover overlay badge --}}
-                                        <div class="absolute inset-0 bg-[#083575]/0 group-hover:bg-[#083575]/10 dark:group-hover:bg-sky-900/20 transition-all duration-200 flex items-center justify-center rounded-t-xl">
-                                            <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white dark:bg-slate-800 text-[#083575] dark:text-sky-300 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md border border-[#BFDBFE] dark:border-sky-700">
-                                                Baca →
-                                            </span>
+                                            @else
+                                                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] dark:from-slate-800 dark:to-slate-900 text-[#94a3b8] dark:text-slate-400 p-4">
+                                                    <svg class="w-12 h-12 text-[#BFDBFE] dark:text-slate-700" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M6 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1.5H8V13zm0 3h5v1.5H8V16z"/>
+                                                    </svg>
+                                                </div>
+                                            @endif
                                         </div>
-                                    </div>
-
-                                    {{-- Info (judul saja, tanpa badge kategori) --}}
-                                    <div class="p-3.5 flex flex-col flex-1">
-                                        <h3 class="font-bold text-[13px] text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-3">
-                                            {{ $book->judul }}
-                                        </h3>
-                                    </div>
-                                </a>
-                            </div>
-                        @endforeach
+                                        {{-- Judul --}}
+                                        <div class="p-3.5 flex flex-col flex-1">
+                                            <h3 class="font-bold text-[13px] text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-3">
+                                                {{ $book->judul }}
+                                            </h3>
+                                        </div>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 
-                {{-- Hide scrollbar CSS --}}
-                <style>
-                    #ebook-carousel::-webkit-scrollbar { display: none; }
-                </style>
-
-                {{-- Carousel JS: Infinite Loop + Drag (threshold tinggi agar tidak mudah klik) --}}
+                {{-- Carousel JS: smooth rAF infinite loop + drag --}}
                 <script>
-                    (function () {
-                        const carousel = document.getElementById('ebook-carousel');
-                        const prevBtn  = document.getElementById('ebook-prev');
-                        const nextBtn  = document.getElementById('ebook-next');
+                (function () {
+                    const outer  = document.getElementById('ebook-outer');
+                    const track  = document.getElementById('ebook-track');
+                    const prevBtn = document.getElementById('ebook-prev');
+                    const nextBtn = document.getElementById('ebook-next');
 
-                        if (!carousel) return;
+                    if (!outer || !track) return;
 
-                        const GAP      = 20; // px, harus sesuai gap-4/gap-5
-                        const cardW    = () => (carousel.querySelector('.ebook-card')?.offsetWidth || 185) + GAP;
-                        const TOTAL    = {{ $featuredEbooks->count() }}; // jumlah card asli (sebelum di-clone)
+                    const SPEED = 0.55;          // px per frame (~33px/s pada 60fps)
+                    const GAP   = window.innerWidth >= 640 ? 20 : 16;
+                    const DRAG_THRESHOLD = 10;   // px geser sebelum dianggap drag
 
-                        // Mulai di titik tengah (set A ke-2) agar bisa scroll dua arah
-                        function initScroll() {
-                            carousel.scrollLeft = TOTAL * cardW();
+                    let offset         = 0;      // translateX saat ini (px, selalu ≤ 0)
+                    let halfW          = 0;      // lebar satu set card (dihitung setelah layout)
+                    let isPaused       = false;
+                    let isDragging     = false;
+                    let hasDragged     = false;
+                    let dragStartX     = 0;
+                    let dragStartOff   = 0;
+
+                    function getHalfW() {
+                        return track.scrollWidth / 2;
+                    }
+
+                    function wrapOffset(val) {
+                        const hw = getHalfW();
+                        // Jaga agar offset tetap dalam rentang (-hw, 0]
+                        if (val <= -hw) val += hw;
+                        if (val > 0)    val -= hw;
+                        return val;
+                    }
+
+                    function applyTransform() {
+                        track.style.transform = 'translateX(' + offset + 'px)';
+                    }
+
+                    // ---- Loop utama rAF ----
+                    function loop() {
+                        if (!isPaused && !isDragging) {
+                            offset -= SPEED;
+                            offset  = wrapOffset(offset);
+                            applyTransform();
                         }
-                        initScroll();
+                        requestAnimationFrame(loop);
+                    }
+                    // Tunggu layout siap baru mulai
+                    requestAnimationFrame(() => {
+                        halfW  = getHalfW();
+                        offset = 0;
+                        loop();
+                    });
 
-                        // ---- Infinite loop via scroll watch ----
-                        carousel.addEventListener('scroll', () => {
-                            const halfW = TOTAL * cardW();
-                            // Sudah sampai ujung kanan set clone → lompat ke set asli
-                            if (carousel.scrollLeft >= halfW * 2 - carousel.clientWidth / 2) {
-                                carousel.scrollLeft -= halfW;
-                            }
-                            // Sudah sampai ujung kiri → lompat ke set clone
-                            if (carousel.scrollLeft <= carousel.clientWidth / 2) {
-                                carousel.scrollLeft += halfW;
-                            }
-                        }, { passive: true });
+                    // ---- Pause on hover ----
+                    outer.addEventListener('mouseenter', () => { isPaused = true; });
+                    outer.addEventListener('mouseleave', () => { if (!isDragging) isPaused = false; });
 
-                        // ---- Tombol prev / next ----
-                        if (prevBtn) prevBtn.addEventListener('click', () => {
-                            carousel.scrollBy({ left: -cardW(), behavior: 'smooth' });
-                        });
-                        if (nextBtn) nextBtn.addEventListener('click', () => {
-                            carousel.scrollBy({ left:  cardW(), behavior: 'smooth' });
-                        });
+                    // ---- Tombol prev / next ----
+                    const cardStep = () => (track.querySelector('.ebook-card')?.offsetWidth || 185) + GAP;
 
-                        // ---- Drag to scroll (mouse) ----
-                        // threshold: geser > 12px baru dianggap drag (bukan klik)
-                        const DRAG_THRESHOLD = 12;
-                        let isDragging = false, hasDragged = false, startX = 0, startScroll = 0;
+                    if (prevBtn) prevBtn.addEventListener('click', () => {
+                        isPaused = true;
+                        offset = wrapOffset(offset + cardStep());
+                        applyTransform();
+                        setTimeout(() => { isPaused = false; }, 600);
+                    });
+                    if (nextBtn) nextBtn.addEventListener('click', () => {
+                        isPaused = true;
+                        offset = wrapOffset(offset - cardStep());
+                        applyTransform();
+                        setTimeout(() => { isPaused = false; }, 600);
+                    });
 
-                        carousel.addEventListener('mousedown', e => {
-                            isDragging  = true;
-                            hasDragged  = false;
-                            startX      = e.pageX - carousel.offsetLeft;
-                            startScroll = carousel.scrollLeft;
-                        });
+                    // ---- Drag (mouse) ----
+                    outer.addEventListener('mousedown', e => {
+                        isDragging   = true;
+                        hasDragged   = false;
+                        isPaused     = true;
+                        dragStartX   = e.clientX;
+                        dragStartOff = offset;
+                        outer.style.cursor = 'grabbing';
+                    });
 
-                        document.addEventListener('mouseup', () => {
-                            isDragging = false;
-                        });
+                    document.addEventListener('mousemove', e => {
+                        if (!isDragging) return;
+                        const delta = e.clientX - dragStartX;
+                        if (Math.abs(delta) > DRAG_THRESHOLD) {
+                            hasDragged = true;
+                            e.preventDefault();
+                        }
+                        offset = wrapOffset(dragStartOff + delta);
+                        applyTransform();
+                    });
 
-                        carousel.addEventListener('mousemove', e => {
-                            if (!isDragging) return;
-                            const x    = e.pageX - carousel.offsetLeft;
-                            const walk = (x - startX) * 1.5;
-                            if (Math.abs(walk) > DRAG_THRESHOLD) {
-                                hasDragged = true;
-                                e.preventDefault();
-                                carousel.scrollLeft = startScroll - walk;
-                            }
-                        });
+                    document.addEventListener('mouseup', () => {
+                        if (!isDragging) return;
+                        isDragging = false;
+                        outer.style.cursor = 'grab';
+                        // Resume gerak setelah jeda singkat
+                        setTimeout(() => { isPaused = false; }, 700);
+                    });
 
-                        // Blokir klik kalau sudah drag (threshold 12px)
-                        carousel.addEventListener('click', e => {
-                            if (hasDragged) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                hasDragged = false;
-                            }
-                        }, true);
+                    // Blokir klik jika beneran drag
+                    outer.addEventListener('click', e => {
+                        if (hasDragged) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            hasDragged = false;
+                        }
+                    }, true);
 
-                        // ---- Touch swipe support ----
-                        let touchStartX = 0, touchScroll = 0, touchMoved = false;
-                        carousel.addEventListener('touchstart', e => {
-                            touchStartX = e.touches[0].clientX;
-                            touchScroll = carousel.scrollLeft;
-                            touchMoved  = false;
-                        }, { passive: true });
-                        carousel.addEventListener('touchmove', e => {
-                            const delta = touchStartX - e.touches[0].clientX;
-                            if (Math.abs(delta) > 8) touchMoved = true;
-                            carousel.scrollLeft = touchScroll + delta;
-                        }, { passive: true });
-                        carousel.addEventListener('touchend', e => {
-                            if (touchMoved) e.preventDefault();
-                        });
-                    })();
+                    // ---- Touch swipe ----
+                    let touchStartX = 0, touchStartOff = 0, touchMoved = false;
+                    outer.addEventListener('touchstart', e => {
+                        touchStartX   = e.touches[0].clientX;
+                        touchStartOff = offset;
+                        touchMoved    = false;
+                        isPaused      = true;
+                    }, { passive: true });
+                    outer.addEventListener('touchmove', e => {
+                        const delta = e.touches[0].clientX - touchStartX;
+                        if (Math.abs(delta) > 6) touchMoved = true;
+                        offset = wrapOffset(touchStartOff + delta);
+                        applyTransform();
+                    }, { passive: true });
+                    outer.addEventListener('touchend', () => {
+                        setTimeout(() => { isPaused = false; }, 900);
+                    });
+                })();
                 </script>
 
             @else
