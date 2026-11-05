@@ -14,109 +14,144 @@ class JatimprovArticleService
     protected string $baseUrl = 'https://kominfo.jatimprov.go.id';
 
     /**
-     * Fetch and synchronize the latest articles from Diskominfo Jatim.
+     * Fetch and synchronize the latest articles from Diskominfo Jatim across multiple pages.
      *
-     * @param int $limit Maximum number of articles to import
-     * @return array{total_scanned: int, imported: int, skipped: int, articles: array}
+     * @param int $limit Maximum number of new articles to import
+     * @param int $maxPages Maximum number of pagination pages to scan
+     * @param int $startPage The starting page number
+     * @return array{success: bool, total_scanned: int, imported: int, skipped: int, pages_scanned: int, articles: array}
      */
-    public function sync(int $limit = 10): array
+    public function sync(int $limit = 25, int $maxPages = 5, int $startPage = 1): array
     {
-        $indexHtml = $this->fetchUrl($this->baseUrl . '/berita');
+        @set_time_limit(180);
 
-        if (! $indexHtml) {
-            return [
-                'success' => false,
-                'message' => 'Gagal menghubungi portal berita Diskominfo Jatim.',
-                'total_scanned' => 0,
-                'imported' => 0,
-                'skipped' => 0,
-                'articles' => [],
-            ];
-        }
-
-        // Extract article relative URLs
-        preg_match_all('/<a[^>]+href="(\/berita\/[^"]+)"[^>]*>/i', $indexHtml, $matches);
-
-        $urls = array_values(array_unique(array_filter($matches[1] ?? [], function ($u) {
-            return strpos($u, '?') === false && $u !== '/berita/cari' && $u !== '/berita';
-        })));
-
-        $urlsToProcess = array_slice($urls, 0, $limit);
         $imported = 0;
         $skipped = 0;
+        $totalScanned = 0;
+        $pagesScanned = 0;
         $importedArticles = [];
 
         $adminId = auth()->id() ?? User::first()?->id;
 
-        foreach ($urlsToProcess as $relUrl) {
-            $fullUrl = $this->baseUrl . $relUrl;
-            $detailHtml = $this->fetchUrl($fullUrl);
+        for ($page = $startPage; $page < ($startPage + $maxPages); $page++) {
+            $pageUrl = $page === 1
+                ? $this->baseUrl . '/berita'
+                : $this->baseUrl . '/berita?page=' . $page;
 
-            if (! $detailHtml) {
-                continue;
+            $indexHtml = $this->fetchUrl($pageUrl);
+
+            if (! $indexHtml) {
+                if ($page === $startPage && $imported === 0) {
+                    return [
+                        'success' => false,
+                        'message' => "Gagal menghubungi portal berita Diskominfo Jatim pada halaman {$page}.",
+                        'total_scanned' => 0,
+                        'imported' => 0,
+                        'skipped' => 0,
+                        'pages_scanned' => 0,
+                        'articles' => [],
+                    ];
+                }
+                break;
             }
 
-            $articleData = $this->parseArticle($detailHtml, $fullUrl);
+            $pagesScanned++;
 
-            if (! $articleData || empty($articleData['headline'])) {
-                continue;
+            // Extract article relative URLs from this page
+            preg_match_all('/<a[^>]+href="(\/berita\/[^"]+)"[^>]*>/i', $indexHtml, $matches);
+
+            $urls = array_values(array_unique(array_filter($matches[1] ?? [], function ($u) {
+                return strpos($u, '?') === false && $u !== '/berita/cari' && $u !== '/berita';
+            })));
+
+            if (empty($urls)) {
+                break;
             }
 
-            $title = trim($articleData['headline']);
+            foreach ($urls as $relUrl) {
+                $totalScanned++;
 
-            // Check if article already exists by title
-            $exists = Informasi::where('judul', $title)
-                ->orWhere('slug', Str::slug($title))
-                ->exists();
+                // Fast check by slug first
+                $urlSlug = basename($relUrl);
+                if (Informasi::where('slug', $urlSlug)->exists()) {
+                    $skipped++;
+                    continue;
+                }
 
-            if ($exists) {
-                $skipped++;
-                continue;
-            }
+                $fullUrl = $this->baseUrl . $relUrl;
+                $detailHtml = $this->fetchUrl($fullUrl);
 
-            // Generate unique slug
-            $slug = Str::slug($title);
-            $count = 1;
-            while (Informasi::where('slug', $slug)->exists()) {
-                $slug = Str::slug($title) . '-' . $count++;
-            }
+                if (! $detailHtml) {
+                    continue;
+                }
 
-            // Format body content into HTML paragraphs
-            $formattedContent = $this->formatContent($articleData['body'] ?? '', $fullUrl);
+                $articleData = $this->parseArticle($detailHtml, $fullUrl);
 
-            // Determine relevant categories
-            $kategori = $this->determineCategory($title, $articleData['keywords'] ?? [], $articleData['body'] ?? '');
+                if (! $articleData || empty($articleData['headline'])) {
+                    continue;
+                }
 
-            $publishedAt = null;
-            if (! empty($articleData['datePublished'])) {
-                try {
-                    $publishedAt = Carbon::parse($articleData['datePublished']);
-                } catch (\Throwable $e) {
+                $title = trim($articleData['headline']);
+
+                // Check if article already exists by title
+                $exists = Informasi::where('judul', $title)
+                    ->orWhere('slug', Str::slug($title))
+                    ->exists();
+
+                if ($exists) {
+                    $skipped++;
+                    continue;
+                }
+
+                // Generate unique slug
+                $slug = Str::slug($title);
+                $count = 1;
+                while (Informasi::where('slug', $slug)->exists()) {
+                    $slug = Str::slug($title) . '-' . $count++;
+                }
+
+                // Format body content into HTML paragraphs
+                $formattedContent = $this->formatContent($articleData['body'] ?? '', $fullUrl);
+
+                // Determine relevant categories
+                $kategori = $this->determineCategory($title, $articleData['keywords'] ?? [], $articleData['body'] ?? '');
+
+                $publishedAt = null;
+                if (! empty($articleData['datePublished'])) {
+                    try {
+                        $publishedAt = Carbon::parse($articleData['datePublished']);
+                    } catch (\Throwable $e) {
+                        $publishedAt = now();
+                    }
+                } else {
                     $publishedAt = now();
                 }
-            } else {
-                $publishedAt = now();
+
+                $informasi = Informasi::create([
+                    'judul' => $title,
+                    'slug' => $slug,
+                    'konten' => $formattedContent,
+                    'ringkasan' => Str::limit(strip_tags($articleData['description'] ?? $articleData['body'] ?? ''), 250),
+                    'gambar_url' => $articleData['image'] ?? null,
+                    'kategori' => $kategori,
+                    'status' => 'Publik',
+                    'published_at' => $publishedAt,
+                    'jumlah_dilihat' => rand(5, 40),
+                    'created_by' => $adminId,
+                ]);
+
+                $imported++;
+                $importedArticles[] = [
+                    'id' => $informasi->id,
+                    'judul' => $informasi->judul,
+                    'kategori' => $informasi->kategori,
+                    'halaman' => $page,
+                ];
+
+                if ($imported >= $limit) {
+                    break 2;
+                }
             }
-
-            $informasi = Informasi::create([
-                'judul' => $title,
-                'slug' => $slug,
-                'konten' => $formattedContent,
-                'ringkasan' => Str::limit(strip_tags($articleData['description'] ?? $articleData['body'] ?? ''), 250),
-                'gambar_url' => $articleData['image'] ?? null,
-                'kategori' => $kategori,
-                'status' => 'Publik',
-                'published_at' => $publishedAt,
-                'jumlah_dilihat' => rand(5, 40),
-                'created_by' => $adminId,
-            ]);
-
-            $imported++;
-            $importedArticles[] = [
-                'id' => $informasi->id,
-                'judul' => $informasi->judul,
-                'kategori' => $informasi->kategori,
-            ];
         }
 
         // Clear relevant caches
@@ -128,7 +163,8 @@ class JatimprovArticleService
 
         return [
             'success' => true,
-            'total_scanned' => count($urlsToProcess),
+            'pages_scanned' => $pagesScanned,
+            'total_scanned' => $totalScanned,
             'imported' => $imported,
             'skipped' => $skipped,
             'articles' => $importedArticles,

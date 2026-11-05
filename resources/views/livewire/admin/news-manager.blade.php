@@ -11,23 +11,106 @@
             <p class="text-xs sm:text-sm text-slate-500 mt-1">Publikasi siaran pers, artikel edukasi keamanan siber, agenda kegiatan, dan pengumuman kedinasan.</p>
         </div>
         <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
-            <button
-                type="button"
-                wire:click="syncJatimprovNews"
-                wire:loading.attr="disabled"
-                class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-lg border border-slate-300 shadow-xs transition-colors cursor-pointer shrink-0 disabled:opacity-60"
-                title="Ambil berita terbaru secara otomatis dari portal resmi Diskominfo Jawa Timur"
-            >
-                <svg wire:loading.remove wire:target="syncJatimprovNews" class="w-4 h-4 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                <svg wire:loading wire:target="syncJatimprovNews" class="w-4 h-4 text-[#0284c7] animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span wire:loading.remove wire:target="syncJatimprovNews">Tarik dari Jatimprov</span>
-                <span wire:loading wire:target="syncJatimprovNews">Menyinkronkan...</span>
-            </button>
+            {{-- Dropdown Sinkronisasi Jatimprov --}}
+            <div class="relative inline-flex items-center shadow-xs rounded-lg" x-data="{ open: false }">
+                <button
+                    type="button"
+                    wire:click="syncJatimprovNews(25, 5, 1)"
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-l-lg border border-slate-300 transition-colors cursor-pointer disabled:opacity-60"
+                    title="Ambil berita terbaru secara otomatis dari halaman 1 sampai 5 Diskominfo Jatim"
+                >
+                    <svg wire:loading.remove wire:target="syncJatimprovNews" class="w-4 h-4 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <svg wire:loading wire:target="syncJatimprovNews" class="w-4 h-4 text-[#0284c7] animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span wire:loading.remove wire:target="syncJatimprovNews">Tarik dari Jatimprov</span>
+                    <span wire:loading wire:target="syncJatimprovNews">Menyinkronkan...</span>
+                </button>
+
+                <button
+                    type="button"
+                    @click="open = !open"
+                    @click.away="open = false"
+                    wire:loading.attr="disabled"
+                    class="px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-600 rounded-r-lg border-y border-r border-slate-300 transition-colors cursor-pointer border-l border-l-slate-200"
+                    title="Opsi halaman sinkronisasi"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                {{-- Menu Pilihan Jumlah Halaman --}}
+                <div
+                    x-show="open"
+                    x-cloak
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="transform opacity-0 scale-95"
+                    x-transition:enter-end="transform opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="transform opacity-100 scale-100"
+                    x-transition:leave-end="transform opacity-0 scale-95"
+                    class="absolute right-0 top-full mt-1.5 w-64 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-50 text-xs text-slate-700"
+                >
+                    <div class="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        Pilihan Jangkauan Halaman
+                    </div>
+                    <button
+                        type="button"
+                        @click="open = false"
+                        wire:click="syncJatimprovNews(15, 3, 1)"
+                        class="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
+                    >
+                        <span class="font-medium text-slate-800">15 Berita Terbaru</span>
+                        <span class="text-[11px] text-slate-400">Hal 1 – 3</span>
+                    </button>
+                    <button
+                        type="button"
+                        @click="open = false"
+                        wire:click="syncJatimprovNews(25, 5, 1)"
+                        class="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
+                    >
+                        <span class="font-medium text-slate-800">25 Berita (Rekomendasi)</span>
+                        <span class="text-[11px] text-slate-400">Hal 1 – 5</span>
+                    </button>
+                    <button
+                        type="button"
+                        @click="open = false"
+                        wire:click="syncJatimprovNews(50, 10, 1)"
+                        class="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
+                    >
+                        <span class="font-medium text-slate-800">50 Berita (Banyak)</span>
+                        <span class="text-[11px] text-slate-400">Hal 1 – 10</span>
+                    </button>
+                    <div class="my-1 border-t border-slate-100"></div>
+                    <div class="px-3 py-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        Halaman Arsip Lebih Lama
+                    </div>
+                    <button
+                        type="button"
+                        @click="open = false"
+                        wire:click="syncJatimprovNews(30, 5, 4)"
+                        class="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
+                    >
+                        <span class="font-medium text-slate-800">Tarik Halaman 4 – 8</span>
+                        <span class="text-[11px] text-slate-400">~30 Berita</span>
+                    </button>
+                    <button
+                        type="button"
+                        @click="open = false"
+                        wire:click="syncJatimprovNews(30, 5, 8)"
+                        class="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
+                    >
+                        <span class="font-medium text-slate-800">Tarik Halaman 8 – 12</span>
+                        <span class="text-[11px] text-slate-400">~30 Berita</span>
+                    </button>
+                </div>
+            </div>
+
             <a href="{{ route('admin.informasi.create') }}" wire:navigate.hover class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition-colors cursor-pointer shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>

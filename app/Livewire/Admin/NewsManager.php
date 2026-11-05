@@ -66,19 +66,21 @@ class NewsManager extends Component
         \Illuminate\Support\Facades\Cache::forget('admin_dashboard_kpis');
     }
 
-    public function syncJatimprovNews(JatimprovArticleService $service): void
+    public function syncJatimprovNews(JatimprovArticleService $service, int $limit = 25, int $pages = 5, int $startPage = 1): void
     {
-        $result = $service->sync(limit: 10);
+        $result = $service->sync(limit: $limit, maxPages: $pages, startPage: $startPage);
 
         if (! ($result['success'] ?? false)) {
             session()->flash('error', $result['message'] ?? 'Gagal melakukan sinkronisasi artikel dari Diskominfo Jatim.');
             return;
         }
 
+        $pagesScanned = $result['pages_scanned'] ?? 1;
+
         if ($result['imported'] > 0) {
-            session()->flash('success', "Berhasil mensinkronisasi {$result['imported']} artikel baru dari Diskominfo Jawa Timur!");
+            session()->flash('success', "Berhasil mensinkronisasi {$result['imported']} artikel baru dari {$pagesScanned} halaman Diskominfo Jawa Timur!");
         } else {
-            session()->flash('info', "Semua artikel terbaru ({$result['skipped']} artikel) sudah tersimpan di database.");
+            session()->flash('info', "Semua artikel dari {$pagesScanned} halaman ({$result['skipped']} artikel yang diperiksa) sudah tersimpan di database.");
         }
 
         $this->resetPage();
