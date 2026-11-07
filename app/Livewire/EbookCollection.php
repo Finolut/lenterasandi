@@ -74,6 +74,11 @@ class EbookCollection extends Component
                 }
             }
         }
+
+        if (request()->filled('search')) {
+            $this->search = trim(request('search'));
+            $this->isSearchOpen = true;
+        }
     }
 
     public function updatingSearch(): void

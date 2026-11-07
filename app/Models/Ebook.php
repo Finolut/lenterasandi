@@ -68,6 +68,7 @@ class Ebook extends Model
             Cache::forget('home_total_ebooks');
             Cache::forget('home_total_downloads');
             Cache::forget('home_featured_ebooks');
+            Cache::forget('home_hero_ebook');
             Cache::forget('ebook_total_count');
             Cache::forget('ebook_public_categories');
             Cache::forget('ebook_public_shelves');
@@ -80,6 +81,7 @@ class Ebook extends Model
             Cache::forget('home_total_ebooks');
             Cache::forget('home_total_downloads');
             Cache::forget('home_featured_ebooks');
+            Cache::forget('home_hero_ebook');
             Cache::forget('ebook_total_count');
             Cache::forget('ebook_public_categories');
             Cache::forget('ebook_public_shelves');

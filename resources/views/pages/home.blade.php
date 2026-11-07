@@ -2,12 +2,18 @@
     use App\Models\Ebook;
     use App\Models\Informasi;
     use Illuminate\Support\Facades\Cache;
+    use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Str;
     
     $totalEbooks = Cache::remember('home_total_ebooks', 60, function () {
         return Ebook::where('status', 'Publik')->count();
     });
 
-
+    $heroEbook = Cache::remember('home_hero_ebook', now()->addMinutes(10), function () {
+        return Ebook::where('status', 'Publik')
+            ->latest()
+            ->first();
+    });
 
     $featuredEbooks = Cache::remember('home_featured_ebooks', now()->addMinutes(10), fn () => Ebook::where('status', 'Publik')
         ->select(['id', 'judul', 'kategori', 'file_url', 'cover_url', 'created_at'])
@@ -17,33 +23,210 @@
         ->latest('published_at')->take(3)->get());
 @endphp
 <x-layouts.app active="Beranda">
-    {{-- HERO SECTION (INAgov Style) --}}
-    <section id="beranda" class="relative min-h-[92vh] md:min-h-screen w-full bg-cover bg-no-repeat flex flex-col justify-between items-center text-center px-4 overflow-hidden border-b border-[#E6ECF5] dark:border-slate-800 scroll-mt-24 md:scroll-mt-28"
-        style="background-image: url('{{ asset('assets/images/background.png') }}'); background-position: center bottom;">
+    {{-- HERO SECTION: Featured E-Book 2-Kolom --}}
+    <section id="beranda" class="relative w-full bg-gradient-to-b from-[#EFF6FF] via-[#F8FAFC] to-white dark:from-[#09152e] dark:via-[#070e1e] dark:to-[#070e1e] border-b border-[#E6ECF5] dark:border-slate-800 scroll-mt-24 md:scroll-mt-28 overflow-hidden transition-colors duration-200">
         
-        {{-- Subtle Dark Mode Backdrop Overlay --}}
-        <div class="absolute inset-0 bg-transparent dark:bg-[#070e1e]/75 transition-colors duration-200 pointer-events-none"></div>
+        {{-- Soft Decorative Background Glow --}}
+        <div class="absolute -top-32 -left-32 w-96 h-96 bg-[#BFDBFE]/30 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-1/4 -right-32 w-96 h-96 bg-[#93C5FD]/20 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#BFDBFE] dark:via-sky-900 to-transparent"></div>
 
-        {{-- Hero Center Content --}}
-        <div class="max-w-4xl mx-auto pt-32 sm:pt-40 md:pt-44 pb-6 flex flex-col items-center z-10 reveal-on-scroll">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[46px] font-semibold text-[#083575] dark:text-sky-200 leading-tight tracking-tight">
-                Akses Koleksi E-Book &amp; Artikel Digital dengan Lebih Efisien
-            </h1>
-            <p class="mt-4 sm:mt-5 text-base sm:text-lg md:text-xl text-[#5A6A85] dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                Platform terpadu untuk mengakses, membaca e-book edukasi terstruktur, dan memperoleh panduan serta informasi keamanan digital terkini secara praktis.
-            </p>
-            <div class="mt-6 sm:mt-8 flex justify-center">
-                <a
-                    href="#tentang"
-                    class="nav-smooth-link inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium border border-[#D0D5DD] dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-[#083575] dark:text-sky-300 h-11 sm:h-12 px-6 sm:px-7 text-sm sm:text-base shadow-xs hover:shadow-sm transition-all duration-200"
-                >
-                    Pelajari Lentera Sandi
-                </a>
-            </div>
+        <div class="max-w-6xl mx-auto px-6 pt-28 sm:pt-36 md:pt-40 pb-16 md:pb-20 relative z-10">
+            @if($heroEbook)
+                @php
+                    $coverSrc = $heroEbook->cover_image;
+                    $pdfSrc   = $heroEbook->file_url
+                        ? Storage::disk('public')->url($heroEbook->file_url)
+                        : null;
+                    $cleanDeskripsi = strip_tags($heroEbook->deskripsi ?? '');
+                    $sinopsis = !empty(trim($cleanDeskripsi))
+                        ? Str::limit(trim($cleanDeskripsi), 240)
+                        : 'Buku panduan resmi dan referensi terpercaya dalam meningkatkan literasi persandian serta ketahanan keamanan informasi digital bagi ASN dan masyarakat Jawa Timur.';
+                @endphp
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-center">
+                    
+                    {{-- KOLOM KIRI: Cover E-Book Rekomendasi Vertikal --}}
+                    <div class="lg:col-span-5 flex flex-col items-center justify-center reveal-on-scroll">
+                        
+                        {{-- Badge Pill di atas cover --}}
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-300 dark:border-amber-600/60 text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-bold shadow-xs mb-5">
+                            <span class="flex h-2 w-2 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                            </span>
+                            <span>⭐ Rekomendasi Minggu Ini</span>
+                        </div>
+
+                        {{-- Card Cover Vertikal dengan Soft 3D Drop-Shadow & Rounded-xl --}}
+                        <div
+                            x-data
+                            x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
+                            class="relative group"
+                        >
+                            {{-- Soft 3D Glow / Shadow Layer --}}
+                            <div class="absolute -inset-2 bg-gradient-to-tr from-[#083575]/20 via-[#1D68BD]/15 to-sky-400/25 rounded-2xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+
+                            <a href="{{ route('ebooks.show', $heroEbook->id) }}" wire:navigate.hover class="block relative">
+                                <div class="w-[220px] sm:w-[260px] md:w-[290px] lg:w-[310px] aspect-[2/3] bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(8,53,117,0.22)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.65)] ring-1 ring-black/5 dark:ring-white/10 group-hover:scale-[1.02] group-hover:-translate-y-1.5 transition-all duration-300 flex items-center justify-center">
+                                    
+                                    @if($coverSrc)
+                                        <img src="{{ $coverSrc }}" alt="{{ $heroEbook->judul }}" class="w-full h-full object-cover object-top select-none" loading="eager" draggable="false">
+                                    @elseif($pdfSrc)
+                                        <div class="pdf-cover-wrap relative w-full h-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden flex items-center justify-center" data-pdf-url="{{ $pdfSrc }}">
+                                            <div class="pdf-skeleton absolute inset-0 bg-[#e2e8f0] dark:bg-slate-800 animate-pulse flex flex-col items-center justify-center text-[#94a3b8] dark:text-slate-400 gap-2 p-4">
+                                                <svg class="w-8 h-8 animate-spin text-[#64748b] dark:text-slate-400" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span class="text-xs font-mono text-[#64748b] dark:text-slate-400">Memuat cover...</span>
+                                            </div>
+                                            <img class="pdf-cover-img w-full h-full object-cover object-top hidden select-none" alt="{{ $heroEbook->judul }}" draggable="false">
+                                        </div>
+                                    @else
+                                        <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] dark:from-slate-800 dark:to-slate-900 text-[#94a3b8] dark:text-slate-400 p-6 text-center select-none">
+                                            <svg class="w-16 h-16 mb-3 text-[#BFDBFE] dark:text-slate-700" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M6 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1.5H8V13zm0 3h5v1.5H8V16z"/>
+                                            </svg>
+                                            <span class="text-sm font-semibold text-[#083575] dark:text-sky-300">{{ $heroEbook->judul }}</span>
+                                        </div>
+                                    @endif
+
+                                    {{-- Realistic subtle spine shadow on left edge of book --}}
+                                    <div class="absolute left-0 inset-y-0 w-3 bg-gradient-to-r from-black/25 via-black/10 to-transparent pointer-events-none"></div>
+                                </div>
+                            </a>
+
+                            {{-- Label klik untuk detail --}}
+                            <p class="text-center text-xs text-[#64748B] dark:text-slate-400 mt-3 font-medium">Klik cover untuk melihat ringkasan lengkap</p>
+                        </div>
+                    </div>
+
+                    {{-- KOLOM KANAN: Tag Kategori, Judul H1, Sinopsis, Tombol Aksi, & Search Bar Modern --}}
+                    <div class="lg:col-span-7 flex flex-col text-left reveal-on-scroll reveal-delay-1">
+                        
+                        {{-- Tag Kategori & Metadata --}}
+                        <div class="flex items-center gap-2.5 flex-wrap mb-3.5">
+                            @if(!empty($heroEbook->kategori))
+                                @foreach($heroEbook->kategori_list as $kat)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-[#EFF6FF] dark:bg-sky-950/70 text-[#1D68BD] dark:text-sky-300 border border-[#BFDBFE] dark:border-sky-800">
+                                        {{ $kat }}
+                                    </span>
+                                @endforeach
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-[#EFF6FF] dark:bg-sky-950/70 text-[#1D68BD] dark:text-sky-300 border border-[#BFDBFE] dark:border-sky-800">
+                                    Keamanan Informasi
+                                </span>
+                            @endif
+
+                            @if($heroEbook->tahun)
+                                <span class="text-xs text-[#94A3B8] dark:text-slate-500">•</span>
+                                <span class="text-xs sm:text-sm font-medium text-[#64748B] dark:text-slate-400">Tahun {{ $heroEbook->tahun }}</span>
+                            @endif
+                        </div>
+
+                        {{-- Judul Buku Tebal (H1) --}}
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#083575] dark:text-white tracking-tight leading-[1.18] mb-4">
+                            <a href="{{ route('ebooks.show', $heroEbook->id) }}" wire:navigate.hover class="hover:text-[#1D68BD] dark:hover:text-sky-300 transition-colors">
+                                {{ $heroEbook->judul }}
+                            </a>
+                        </h1>
+
+                        {{-- Penulis / Penerbit jika ada --}}
+                        @if($heroEbook->pengarang || $heroEbook->penerbit)
+                            <p class="text-xs sm:text-sm text-[#64748B] dark:text-slate-400 mb-3.5 font-medium">
+                                @if($heroEbook->pengarang)
+                                    <span>Penulis: <strong class="text-[#083575] dark:text-slate-200">{{ $heroEbook->pengarang }}</strong></span>
+                                @endif
+                                @if($heroEbook->pengarang && $heroEbook->penerbit) • @endif
+                                @if($heroEbook->penerbit)
+                                    <span>Penerbit: <strong class="text-[#083575] dark:text-slate-200">{{ $heroEbook->penerbit }}</strong></span>
+                                @endif
+                            </p>
+                        @endif
+
+                        {{-- Sinopsis E-Book --}}
+                        <p class="text-base sm:text-lg text-[#5A6A85] dark:text-slate-300 leading-relaxed mb-6 sm:mb-8 line-clamp-4">
+                            {{ $sinopsis }}
+                        </p>
+
+                        {{-- 2 Tombol Aksi: 'Baca Sekarang' & 'Unduh' --}}
+                        <div class="flex flex-wrap items-center gap-3 sm:gap-4 mb-8 sm:mb-10">
+                            {{-- Tombol Baca Sekarang --}}
+                            <a
+                                href="{{ route('ebooks.read', $heroEbook->id) }}"
+                                target="_blank"
+                                class="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl font-semibold text-white bg-[#083575] hover:bg-[#0b489a] active:scale-[0.98] shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base group"
+                            >
+                                <svg class="w-5 h-5 text-sky-200 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                <span>Baca Sekarang</span>
+                            </a>
+
+                            {{-- Tombol Unduh --}}
+                            <a
+                                href="{{ route('ebooks.download', $heroEbook->id) }}"
+                                class="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl font-semibold text-[#083575] dark:text-sky-300 bg-white dark:bg-slate-800 hover:bg-[#F8FAFC] dark:hover:bg-slate-700/80 border border-[#D0D5DD] dark:border-slate-700 active:scale-[0.98] shadow-xs hover:shadow-sm transition-all duration-200 text-sm sm:text-base group"
+                            >
+                                <svg class="w-5 h-5 text-[#1D68BD] dark:text-sky-400 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                <span>Unduh</span>
+                                @if($heroEbook->ukuran_format && $heroEbook->ukuran_format !== '—')
+                                    <span class="text-xs font-normal text-[#64748B] dark:text-slate-400">({{ $heroEbook->ukuran_format }})</span>
+                                @endif
+                            </a>
+                        </div>
+
+                        {{-- Search Bar Modern di Bawahnya --}}
+                        <div class="pt-6 border-t border-[#E6ECF5] dark:border-slate-800">
+                            <form action="{{ route('ebooks.index') }}" method="GET" class="relative max-w-xl group">
+                                <div class="relative flex items-center">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#94A3B8] dark:text-slate-400 group-focus-within:text-[#1D68BD] dark:group-focus-within:text-sky-400 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        name="search"
+                                        placeholder="Cari judul e-book atau topik lainnya..."
+                                        class="w-full pl-11 pr-28 py-3.5 bg-white dark:bg-slate-800/90 text-sm sm:text-base text-[#0F172A] dark:text-white rounded-xl border border-[#D0D5DD] dark:border-slate-700 shadow-xs focus:ring-2 focus:ring-[#1D68BD] focus:border-[#1D68BD] dark:focus:ring-sky-500 placeholder-[#94A3B8] dark:placeholder-slate-400 transition-all outline-none"
+                                    >
+                                    <button
+                                        type="submit"
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 px-4 sm:px-5 py-2 bg-[#1D68BD] hover:bg-[#083575] text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition-colors duration-200"
+                                    >
+                                        Cari
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            {{-- Topik Populer / Quick Links --}}
+                            <div class="flex items-center gap-2 mt-3 text-xs text-[#64748B] dark:text-slate-400 flex-wrap">
+                                <span class="font-medium">Topik Populer:</span>
+                                <a href="{{ route('ebooks.index', ['search' => 'Keamanan Informasi']) }}" class="hover:text-[#1D68BD] dark:hover:text-sky-300 underline underline-offset-2">Keamanan Informasi</a>
+                                <span>•</span>
+                                <a href="{{ route('ebooks.index', ['search' => 'Siber']) }}" class="hover:text-[#1D68BD] dark:hover:text-sky-300 underline underline-offset-2">Siber</a>
+                                <span>•</span>
+                                <a href="{{ route('ebooks.index', ['search' => 'Modul']) }}" class="hover:text-[#1D68BD] dark:hover:text-sky-300 underline underline-offset-2">Modul</a>
+                                <span>•</span>
+                                <a href="{{ route('ebooks.index') }}" wire:navigate.hover class="hover:text-[#1D68BD] dark:hover:text-sky-300 underline underline-offset-2">Lihat Semua →</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            @else
+                {{-- Fallback jika belum ada e-book di database --}}
+                <div class="text-center py-16">
+                    <h1 class="text-3xl sm:text-4xl font-bold text-[#083575] dark:text-sky-300 mb-3">Portal E-Book Lentera Sandi</h1>
+                    <p class="text-sm text-[#5A6A85] dark:text-slate-400 max-w-lg mx-auto mb-6">Belum ada e-book yang dipublikasikan saat ini. Kunjungi kembali dalam beberapa saat.</p>
+                </div>
+            @endif
         </div>
-
-        {{-- Reserved spacing for character illustration at bottom of background.png --}}
-        <div class="h-60 sm:h-72 md:h-84 w-full pointer-events-none"></div>
     </section>
 
     {{-- SECTION: KOLEKSI E-BOOK (Horizontal Scrollable Carousel) --}}
