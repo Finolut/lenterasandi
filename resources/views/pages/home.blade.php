@@ -111,13 +111,13 @@
                                     x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
                                     class="ebook-card flex-none w-[160px] sm:w-[185px] md:w-[195px] bg-white dark:bg-slate-900 rounded-xl border border-[#e5e7eb] dark:border-slate-800 hover:border-[#BFDBFE] dark:hover:border-sky-700 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-200 group overflow-hidden flex flex-col"
                                 >
-                                    <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover class="ebook-card-link flex flex-col h-full">
+                                    <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover draggable="false" ondragstart="return false;" class="ebook-card-link flex flex-col h-full select-none">
                                         {{-- Cover --}}
                                         <div class="relative w-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center rounded-t-xl" style="aspect-ratio: 2/3;">
                                             @if($coverSrc)
-                                                <img src="{{ $coverSrc }}" alt="{{ $book->judul }}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" loading="lazy" draggable="false">
+                                                <img src="{{ $coverSrc }}" alt="{{ $book->judul }}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300 pointer-events-none select-none" loading="lazy" draggable="false">
                                             @elseif($pdfSrc)
-                                                <div class="pdf-cover-wrap relative w-full h-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden flex items-center justify-center" data-pdf-url="{{ $pdfSrc }}">
+                                                <div class="pdf-cover-wrap relative w-full h-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden flex items-center justify-center pointer-events-none" data-pdf-url="{{ $pdfSrc }}">
                                                     <div class="pdf-skeleton absolute inset-0 bg-[#e2e8f0] dark:bg-slate-800 animate-pulse flex flex-col items-center justify-center text-[#94a3b8] dark:text-slate-400 gap-2 p-3">
                                                         <svg class="w-6 h-6 animate-spin text-[#64748b] dark:text-slate-400" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -125,10 +125,10 @@
                                                         </svg>
                                                         <span class="text-[10px] font-mono text-[#64748b] dark:text-slate-400">Memuat...</span>
                                                     </div>
-                                                    <img class="pdf-cover-img w-full h-full object-cover object-top hidden group-hover:scale-105 transition-transform duration-300" alt="{{ $book->judul }}" draggable="false">
+                                                    <img class="pdf-cover-img w-full h-full object-cover object-top hidden group-hover:scale-105 transition-transform duration-300 pointer-events-none" alt="{{ $book->judul }}" draggable="false">
                                                 </div>
                                             @else
-                                                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] dark:from-slate-800 dark:to-slate-900 text-[#94a3b8] dark:text-slate-400 p-4">
+                                                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] dark:from-slate-800 dark:to-slate-900 text-[#94a3b8] dark:text-slate-400 p-4 pointer-events-none">
                                                     <svg class="w-12 h-12 text-[#BFDBFE] dark:text-slate-700" fill="currentColor" viewBox="0 0 24 24">
                                                         <path d="M6 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1.5H8V13zm0 3h5v1.5H8V16z"/>
                                                     </svg>
@@ -136,7 +136,7 @@
                                             @endif
                                         </div>
                                         {{-- Judul --}}
-                                        <div class="p-3.5 flex flex-col flex-1">
+                                        <div class="p-3.5 flex flex-col flex-1 pointer-events-none">
                                             <h3 class="font-bold text-[13px] text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-3">
                                                 {{ $book->judul }}
                                             </h3>
@@ -148,135 +148,229 @@
                     </div>
                 </div>
 
-                {{-- Carousel JS: smooth rAF infinite loop + drag --}}
+                <style>
+                    #ebook-outer, #ebook-track, .ebook-card, .ebook-card-link, .ebook-card-link * {
+                        -webkit-user-drag: none;
+                        -khtml-user-drag: none;
+                        -moz-user-drag: none;
+                        -o-user-drag: none;
+                        user-drag: none;
+                    }
+                </style>
+
+                {{-- Carousel JS: smooth rAF infinite loop + drag tanpa salah klik --}}
                 <script>
                 (function () {
-                    const outer  = document.getElementById('ebook-outer');
-                    const track  = document.getElementById('ebook-track');
-                    const prevBtn = document.getElementById('ebook-prev');
-                    const nextBtn = document.getElementById('ebook-next');
+                    function setupCarousel() {
+                        const outer   = document.getElementById('ebook-outer');
+                        const track   = document.getElementById('ebook-track');
+                        const prevBtn = document.getElementById('ebook-prev');
+                        const nextBtn = document.getElementById('ebook-next');
 
-                    if (!outer || !track) return;
+                        if (!outer || !track) return;
+                        if (outer.dataset.carouselActive === 'true') return;
+                        outer.dataset.carouselActive = 'true';
 
-                    const SPEED = 0.55;          // px per frame (~33px/s pada 60fps)
-                    const GAP   = window.innerWidth >= 640 ? 20 : 16;
-                    const DRAG_THRESHOLD = 10;   // px geser sebelum dianggap drag
+                        const SPEED = 0.55;          // px per frame (~33px/s pada 60fps)
+                        const GAP   = window.innerWidth >= 640 ? 20 : 16;
+                        const DRAG_THRESHOLD = 5;    // px pergeseran untuk membedakan klik vs drag
 
-                    let offset         = 0;      // translateX saat ini (px, selalu ≤ 0)
-                    let halfW          = 0;      // lebar satu set card (dihitung setelah layout)
-                    let isPaused       = false;
-                    let isDragging     = false;
-                    let hasDragged     = false;
-                    let dragStartX     = 0;
-                    let dragStartOff   = 0;
+                        let offset                = 0;  // translateX saat ini (px, selalu ≤ 0)
+                        let halfW                 = 0;  // lebar satu set card
+                        let isPaused              = false;
+                        let isDragging            = false;
+                        let hasDragged            = false;
+                        let dragStartX            = 0;
+                        let dragStartY            = 0;
+                        let dragStartOff          = 0;
+                        let dragPreventClickUntil = 0;
 
-                    function getHalfW() {
-                        return track.scrollWidth / 2;
-                    }
+                        function getHalfW() {
+                            return track.scrollWidth / 2;
+                        }
 
-                    function wrapOffset(val) {
-                        const hw = getHalfW();
-                        // Jaga agar offset tetap dalam rentang (-hw, 0]
-                        if (val <= -hw) val += hw;
-                        if (val > 0)    val -= hw;
-                        return val;
-                    }
+                        function wrapOffset(val) {
+                            const hw = getHalfW();
+                            if (val <= -hw) val += hw;
+                            if (val > 0)    val -= hw;
+                            return val;
+                        }
 
-                    function applyTransform() {
-                        track.style.transform = 'translateX(' + offset + 'px)';
-                    }
+                        function applyTransform() {
+                            track.style.transform = 'translateX(' + offset + 'px)';
+                        }
 
-                    // ---- Loop utama rAF ----
-                    function loop() {
-                        if (!isPaused && !isDragging) {
-                            offset -= SPEED;
-                            offset  = wrapOffset(offset);
+                        // Cegah browser native drag pada link & gambar
+                        outer.addEventListener('dragstart', e => {
+                            e.preventDefault();
+                            return false;
+                        });
+
+                        // Loop animasi rAF
+                        function loop() {
+                            if (!isPaused && !isDragging) {
+                                offset -= SPEED;
+                                offset  = wrapOffset(offset);
+                                applyTransform();
+                            }
+                            requestAnimationFrame(loop);
+                        }
+
+                        requestAnimationFrame(() => {
+                            halfW  = getHalfW();
+                            offset = 0;
+                            loop();
+                        });
+
+                        // Pause saat hover mouse di atas carousel
+                        outer.addEventListener('mouseenter', () => {
+                            if (!isDragging) isPaused = true;
+                        });
+                        outer.addEventListener('mouseleave', () => {
+                            if (!isDragging) isPaused = false;
+                        });
+
+                        // Tombol prev / next
+                        const cardStep = () => (track.querySelector('.ebook-card')?.offsetWidth || 185) + GAP;
+
+                        if (prevBtn) prevBtn.addEventListener('click', () => {
+                            isPaused = true;
+                            offset = wrapOffset(offset + cardStep());
                             applyTransform();
+                            setTimeout(() => { if (!isDragging) isPaused = false; }, 600);
+                        });
+                        if (nextBtn) nextBtn.addEventListener('click', () => {
+                            isPaused = true;
+                            offset = wrapOffset(offset - cardStep());
+                            applyTransform();
+                            setTimeout(() => { if (!isDragging) isPaused = false; }, 600);
+                        });
+
+                        // ---- Mouse Drag Handling ----
+                        outer.addEventListener('mousedown', e => {
+                            if (e.button !== 0) return; // hanya klik kiri
+                            isDragging   = true;
+                            hasDragged   = false;
+                            isPaused     = true;
+                            dragStartX   = e.clientX;
+                            dragStartY   = e.clientY;
+                            dragStartOff = offset;
+                            outer.style.cursor = 'grabbing';
+                        });
+
+                        document.addEventListener('mousemove', e => {
+                            if (!isDragging) return;
+                            const deltaX = e.clientX - dragStartX;
+                            const deltaY = e.clientY - dragStartY;
+                            const dist   = Math.hypot(deltaX, deltaY);
+
+                            if (dist > DRAG_THRESHOLD) {
+                                hasDragged = true;
+                                dragPreventClickUntil = Date.now() + 350;
+                                track.style.pointerEvents = 'none'; // Matikan pointer event link saat sedang digeser
+                                e.preventDefault();
+                            }
+
+                            if (hasDragged) {
+                                offset = wrapOffset(dragStartOff + deltaX);
+                                applyTransform();
+                            }
+                        });
+
+                        document.addEventListener('mouseup', () => {
+                            if (!isDragging) return;
+                            isDragging = false;
+                            outer.style.cursor = 'grab';
+
+                            if (hasDragged) {
+                                dragPreventClickUntil = Date.now() + 350;
+                                // Biarkan pointerEvents = none sejenak agar event click tidak tembus ke ebook
+                                setTimeout(() => {
+                                    track.style.pointerEvents = '';
+                                    hasDragged = false;
+                                }, 100);
+                            } else {
+                                track.style.pointerEvents = '';
+                            }
+
+                            setTimeout(() => {
+                                if (!isDragging) isPaused = false;
+                            }, 700);
+                        });
+
+                        // ---- Touch Swipe Handling ----
+                        let touchStartX = 0;
+                        let touchStartY = 0;
+                        let touchStartOff = 0;
+                        let touchMoved = false;
+
+                        outer.addEventListener('touchstart', e => {
+                            if (!e.touches.length) return;
+                            touchStartX   = e.touches[0].clientX;
+                            touchStartY   = e.touches[0].clientY;
+                            touchStartOff = offset;
+                            touchMoved    = false;
+                            isPaused      = true;
+                        }, { passive: true });
+
+                        outer.addEventListener('touchmove', e => {
+                            if (!e.touches.length) return;
+                            const deltaX = e.touches[0].clientX - touchStartX;
+                            const deltaY = e.touches[0].clientY - touchStartY;
+                            const dist   = Math.hypot(deltaX, deltaY);
+
+                            if (dist > DRAG_THRESHOLD) {
+                                touchMoved = true;
+                                hasDragged = true;
+                                dragPreventClickUntil = Date.now() + 350;
+                                track.style.pointerEvents = 'none';
+                            }
+
+                            if (touchMoved) {
+                                offset = wrapOffset(touchStartOff + deltaX);
+                                applyTransform();
+                            }
+                        }, { passive: true });
+
+                        outer.addEventListener('touchend', () => {
+                            if (touchMoved) {
+                                dragPreventClickUntil = Date.now() + 350;
+                                setTimeout(() => {
+                                    track.style.pointerEvents = '';
+                                    hasDragged = false;
+                                    touchMoved = false;
+                                }, 100);
+                            } else {
+                                track.style.pointerEvents = '';
+                            }
+                            setTimeout(() => {
+                                if (!isDragging) isPaused = false;
+                            }, 900);
+                        });
+
+                        // ---- Intercept & Block Clicks When Dragged ----
+                        function blockClickIfDragged(e) {
+                            if (hasDragged || Date.now() < dragPreventClickUntil) {
+                                if (outer.contains(e.target) || e.target === outer) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    e.stopImmediatePropagation();
+                                    return false;
+                                }
+                            }
                         }
-                        requestAnimationFrame(loop);
+
+                        // Tangkap di capture phase paling awal
+                        window.addEventListener('click', blockClickIfDragged, true);
+                        outer.addEventListener('click', blockClickIfDragged, true);
                     }
-                    // Tunggu layout siap baru mulai
-                    requestAnimationFrame(() => {
-                        halfW  = getHalfW();
-                        offset = 0;
-                        loop();
-                    });
 
-                    // ---- Pause on hover ----
-                    outer.addEventListener('mouseenter', () => { isPaused = true; });
-                    outer.addEventListener('mouseleave', () => { if (!isDragging) isPaused = false; });
-
-                    // ---- Tombol prev / next ----
-                    const cardStep = () => (track.querySelector('.ebook-card')?.offsetWidth || 185) + GAP;
-
-                    if (prevBtn) prevBtn.addEventListener('click', () => {
-                        isPaused = true;
-                        offset = wrapOffset(offset + cardStep());
-                        applyTransform();
-                        setTimeout(() => { isPaused = false; }, 600);
-                    });
-                    if (nextBtn) nextBtn.addEventListener('click', () => {
-                        isPaused = true;
-                        offset = wrapOffset(offset - cardStep());
-                        applyTransform();
-                        setTimeout(() => { isPaused = false; }, 600);
-                    });
-
-                    // ---- Drag (mouse) ----
-                    outer.addEventListener('mousedown', e => {
-                        isDragging   = true;
-                        hasDragged   = false;
-                        isPaused     = true;
-                        dragStartX   = e.clientX;
-                        dragStartOff = offset;
-                        outer.style.cursor = 'grabbing';
-                    });
-
-                    document.addEventListener('mousemove', e => {
-                        if (!isDragging) return;
-                        const delta = e.clientX - dragStartX;
-                        if (Math.abs(delta) > DRAG_THRESHOLD) {
-                            hasDragged = true;
-                            e.preventDefault();
-                        }
-                        offset = wrapOffset(dragStartOff + delta);
-                        applyTransform();
-                    });
-
-                    document.addEventListener('mouseup', () => {
-                        if (!isDragging) return;
-                        isDragging = false;
-                        outer.style.cursor = 'grab';
-                        // Resume gerak setelah jeda singkat
-                        setTimeout(() => { isPaused = false; }, 700);
-                    });
-
-                    // Blokir klik jika beneran drag
-                    outer.addEventListener('click', e => {
-                        if (hasDragged) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            hasDragged = false;
-                        }
-                    }, true);
-
-                    // ---- Touch swipe ----
-                    let touchStartX = 0, touchStartOff = 0, touchMoved = false;
-                    outer.addEventListener('touchstart', e => {
-                        touchStartX   = e.touches[0].clientX;
-                        touchStartOff = offset;
-                        touchMoved    = false;
-                        isPaused      = true;
-                    }, { passive: true });
-                    outer.addEventListener('touchmove', e => {
-                        const delta = e.touches[0].clientX - touchStartX;
-                        if (Math.abs(delta) > 6) touchMoved = true;
-                        offset = wrapOffset(touchStartOff + delta);
-                        applyTransform();
-                    }, { passive: true });
-                    outer.addEventListener('touchend', () => {
-                        setTimeout(() => { isPaused = false; }, 900);
-                    });
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', setupCarousel);
+                    } else {
+                        setupCarousel();
+                    }
+                    document.addEventListener('livewire:navigated', setupCarousel);
                 })();
                 </script>
 
