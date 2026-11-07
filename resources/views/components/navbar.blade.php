@@ -25,12 +25,6 @@ $navItems = [
         'url' => $isHome ? '#artikel' : route('home') . '#artikel',
         'is_active' => ($active === 'Artikel' || $active === 'Informasi' || request()->routeIs('informasi.*')),
     ],
-    [
-        'id' => 'tentang',
-        'label' => 'Tentang',
-        'url' => $isHome ? '#tentang' : route('home') . '#tentang',
-        'is_active' => ($active === 'Tentang'),
-    ],
 ];
 @endphp
 

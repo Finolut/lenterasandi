@@ -20,7 +20,7 @@
         ->latest()->take(6)->get());
     $recentNews = Cache::remember('home_recent_news', now()->addMinutes(10), fn () => Informasi::where('status', 'Publik')
         ->select(['id', 'judul', 'ringkasan', 'gambar_url', 'kategori', 'published_at'])
-        ->latest('published_at')->take(3)->get());
+        ->latest('published_at')->take(8)->get());
 @endphp
 <x-layouts.app active="Beranda">
     {{-- HERO SECTION: Featured E-Book 2-Kolom --}}
@@ -48,15 +48,6 @@
                     
                     {{-- KOLOM KIRI: Cover E-Book Rekomendasi Vertikal --}}
                     <div class="lg:col-span-5 flex flex-col items-center justify-center reveal-on-scroll">
-                        
-                        {{-- Badge Pill di atas cover --}}
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-300 dark:border-amber-600/60 text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-bold shadow-xs mb-5">
-                            <span class="flex h-2 w-2 relative">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                            </span>
-                            <span>⭐ Rekomendasi Minggu Ini</span>
-                        </div>
 
                         {{-- Card Cover Vertikal dengan Soft 3D Drop-Shadow & Rounded-xl --}}
                         <div
@@ -102,28 +93,8 @@
                         </div>
                     </div>
 
-                    {{-- KOLOM KANAN: Tag Kategori, Judul H1, Sinopsis, Tombol Aksi, & Search Bar Modern --}}
+                    {{-- KOLOM KANAN: Judul H1, Sinopsis, Tombol Aksi, & Search Bar Modern --}}
                     <div class="lg:col-span-7 flex flex-col text-left reveal-on-scroll reveal-delay-1">
-                        
-                        {{-- Tag Kategori & Metadata --}}
-                        <div class="flex items-center gap-2.5 flex-wrap mb-3.5">
-                            @if(!empty($heroEbook->kategori))
-                                @foreach($heroEbook->kategori_list as $kat)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-[#EFF6FF] dark:bg-sky-950/70 text-[#1D68BD] dark:text-sky-300 border border-[#BFDBFE] dark:border-sky-800">
-                                        {{ $kat }}
-                                    </span>
-                                @endforeach
-                            @else
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-[#EFF6FF] dark:bg-sky-950/70 text-[#1D68BD] dark:text-sky-300 border border-[#BFDBFE] dark:border-sky-800">
-                                    Keamanan Informasi
-                                </span>
-                            @endif
-
-                            @if($heroEbook->tahun)
-                                <span class="text-xs text-[#94A3B8] dark:text-slate-500">•</span>
-                                <span class="text-xs sm:text-sm font-medium text-[#64748B] dark:text-slate-400">Tahun {{ $heroEbook->tahun }}</span>
-                            @endif
-                        </div>
 
                         {{-- Judul Buku Tebal (H1) --}}
                         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#083575] dark:text-white tracking-tight leading-[1.18] mb-4">
@@ -581,7 +552,7 @@
             </div>
 
             @if($recentNews->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 reveal-on-scroll reveal-delay-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal-on-scroll reveal-delay-1">
                     @foreach($recentNews as $news)
                         @php
                             $thumbSrc = $news->gambar;
@@ -647,114 +618,6 @@
                     Belum ada artikel atau berita yang dipublikasikan.
                 </div>
             @endif
-        </div>
-    </section>
-
-    {{-- TENTANG SECTION (INAgov Style Ringkas & 4 Poin Visi Misi - Sebelum Footer) --}}
-    <section id="tentang" class="bg-[#F8FAFC] dark:bg-[#070e1e] border-b border-[#E6ECF5] dark:border-slate-800 scroll-mt-24 md:scroll-mt-28 relative overflow-hidden transition-colors duration-200"
-             style="padding-top: clamp(70px, 8vw, 110px); padding-bottom: clamp(70px, 8vw, 110px);">
-        <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative">
-            {{-- Sparkle Kanan --}}
-            <div class="hidden lg:block absolute right-4 xl:right-8 top-1/3 text-[#F02D2D] select-none pointer-events-none" style="width: 24px; height: 24px;">
-                <svg class="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0L14.3 9.7L24 12L14.3 14.3L12 24L9.7 14.3L0 12L9.7 9.7L12 0Z"/>
-                </svg>
-            </div>
-
-            {{-- Header & Penjelasan Ringkas --}}
-            <div class="max-w-4xl relative reveal-on-scroll">
-                {{-- Sparkle Kiri & Judul --}}
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="text-[#F02D2D] select-none shrink-0" style="width: 24px; height: 24px;">
-                        <svg class="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0L14.3 9.7L24 12L14.3 14.3L12 24L9.7 14.3L0 12L9.7 9.7L12 0Z"/>
-                        </svg>
-                    </div>
-                    <h2 class="font-bold text-[#083575] dark:text-sky-300 tracking-tight" style="font-size: clamp(1.6rem, 2.3vw, 2.15rem); line-height: 1.25;">
-                        Tentang Lentera Sandi
-                    </h2>
-                </div>
-
-                <p class="font-semibold text-[#0F172A] dark:text-slate-200" style="margin-top: 14px; font-size: clamp(0.95rem, 1.1vw, 1.05rem); line-height: 1.5;">
-                    Portal Digital Terintegrasi untuk Literasi &amp; Edukasi Keamanan Informasi (LENTERA SANDI).
-                </p>
-
-                <p class="text-[#5A6A85] dark:text-slate-400 max-w-3xl" style="margin-top: 14px; font-size: clamp(0.875rem, 1vw, 0.95rem); line-height: 1.65;">
-                    Lentera Sandi adalah inisiatif strategis dari Bidang Persandian dan Keamanan Informasi, Dinas Komunikasi dan Informatika Provinsi Jawa Timur untuk memfasilitasi peningkatan budaya sadar keamanan informasi di kalangan ASN serta masyarakat umum dalam satu sistem terintegrasi.
-                </p>
-            </div>
-
-            {{-- 4 Poin Diambil dari Visi & Misi --}}
-            <div class="grid grid-cols-1 md:grid-cols-2" 
-                 style="margin-top: clamp(40px, 5vw, 64px); row-gap: clamp(28px, 3.5vw, 40px); column-gap: clamp(36px, 4.5vw, 64px);">
-                {{-- Poin 1 (Visi: Tata Kelola & Ketahanan Digital) --}}
-                <div class="flex items-start gap-3.5 sm:gap-4 reveal-on-scroll reveal-delay-1">
-                    <div class="text-[#1D68BD] dark:text-sky-400 shrink-0 mt-0.5" style="width: 30px; height: 30px; min-width: 30px;">
-                        <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-[#083575] dark:text-sky-300" style="font-size: clamp(0.95rem, 1.1vw, 1.05rem); line-height: 1.35; margin-bottom: 5px;">
-                            Ekosistem Digital Berketahanan
-                        </h3>
-                        <p class="text-[#5A6A85] dark:text-slate-400" style="font-size: clamp(0.8125rem, 0.9vw, 0.875rem); line-height: 1.6;">
-                            Mewujudkan tata kelola persandian dan ketahanan digital pemerintahan Jawa Timur yang aman, andal, dan siap menghadapi ancaman siber terkini.
-                        </p>
-                    </div>
-                </div>
-
-                {{-- Poin 2 (Misi: Kesadaran & Budaya Keamanan ASN) --}}
-                <div class="flex items-start gap-3.5 sm:gap-4 reveal-on-scroll reveal-delay-2">
-                    <div class="text-[#1D68BD] dark:text-sky-400 shrink-0 mt-0.5" style="width: 30px; height: 30px; min-width: 30px;">
-                        <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-[#083575] dark:text-sky-300" style="font-size: clamp(0.95rem, 1.1vw, 1.05rem); line-height: 1.35; margin-bottom: 5px;">
-                            Budaya Sadar Keamanan Informasi
-                        </h3>
-                        <p class="text-[#5A6A85] dark:text-slate-400" style="font-size: clamp(0.8125rem, 0.9vw, 0.875rem); line-height: 1.6;">
-                            Meningkatkan kapasitas dan kesadaran ASN di lingkungan pemerintah daerah dalam memproteksi kerahasiaan dan integritas data publik.
-                        </p>
-                    </div>
-                </div>
-
-                {{-- Poin 3 (Misi: Materi Edukasi Praktis & Terstruktur) --}}
-                <div class="flex items-start gap-3.5 sm:gap-4 reveal-on-scroll reveal-delay-3">
-                    <div class="text-[#1D68BD] dark:text-sky-400 shrink-0 mt-0.5" style="width: 30px; height: 30px; min-width: 30px;">
-                        <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2 0v8.99H22c-.47-4.74-4.24-8.52-8.99-8.99zm0 11.01V22c4.75-.47 8.52-4.25 9-8.99H13z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-[#083575] dark:text-sky-300" style="font-size: clamp(0.95rem, 1.1vw, 1.05rem); line-height: 1.35; margin-bottom: 5px;">
-                            Materi Edukasi Praktis &amp; Terstruktur
-                        </h3>
-                        <p class="text-[#5A6A85] dark:text-slate-400" style="font-size: clamp(0.8125rem, 0.9vw, 0.875rem); line-height: 1.6;">
-                            Menyediakan pedoman teknis, kebijakan persandian, dan regulasi keamanan informasi yang praktis, aplikatif, dan mudah dipahami.
-                        </p>
-                    </div>
-                </div>
-
-                {{-- Poin 4 (Misi: Akses Pembelajaran Terbuka & Bebas) --}}
-                <div class="flex items-start gap-3.5 sm:gap-4 reveal-on-scroll reveal-delay-4">
-                    <div class="text-[#1D68BD] dark:text-sky-400 shrink-0 mt-0.5" style="width: 30px; height: 30px; min-width: 30px;">
-                        <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14zm-4.5 1a1 1 0 11-2 0 1 1 0 012 0z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-[#083575] dark:text-sky-300" style="font-size: clamp(0.95rem, 1.1vw, 1.05rem); line-height: 1.35; margin-bottom: 5px;">
-                            Akses Layanan Mudah &amp; Terbuka
-                        </h3>
-                        <p class="text-[#5A6A85] dark:text-slate-400" style="font-size: clamp(0.8125rem, 0.9vw, 0.875rem); line-height: 1.6;">
-                            Memberikan kemudahan bagi ASN dan masyarakat umum untuk membaca secara online serta mengunduh e-book kapan saja secara gratis.
-                        </p>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 </x-layouts.app>

@@ -41,11 +41,6 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ $isHome ? '#tentang' : route('home') . '#tentang' }}" {{ !$isHome ? 'wire:navigate' : '' }} class="hover:text-white hover:underline transition-colors">
-                                Tentang
-                            </a>
-                        </li>
-                        <li>
                             <a href="{{ route('login') }}" wire:navigate class="hover:text-white hover:underline transition-colors">
                                 Akses Administrator
                             </a>
