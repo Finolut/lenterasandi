@@ -31,7 +31,7 @@ class EbookCollection extends Component
         'Terbaru',
         'Terlama',
         'Judul A-Z',
-        'Paling Banyak Diunduh',
+        'Paling Banyak Dibaca',
     ];
 
     protected $paginationTheme = 'tailwind';
@@ -148,7 +148,8 @@ class EbookCollection extends Component
         match ($this->sortBy) {
             'Terlama' => $query->oldest(),
             'Judul A-Z' => $query->orderBy('judul'),
-            'Paling Banyak Diunduh' => $query->orderByDesc('jumlah_unduhan'),
+            'Paling Banyak Dibaca' => $query->orderByDesc('jumlah_dibaca'),
+            'Paling Banyak Diunduh' => $query->orderByDesc('jumlah_dibaca'),
             default => $query->latest(),
         };
 

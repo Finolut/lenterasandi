@@ -16,7 +16,7 @@
     });
 
     $featuredEbooks = Cache::remember('home_featured_ebooks', now()->addMinutes(10), fn () => Ebook::where('status', 'Publik')
-        ->select(['id', 'judul', 'kategori', 'file_url', 'cover_url', 'created_at'])
+        ->select(['id', 'judul', 'kategori', 'file_url', 'cover_url', 'jumlah_dibaca', 'created_at'])
         ->latest()->take(6)->get());
     $recentNews = Cache::remember('home_recent_news', now()->addMinutes(10), fn () => Informasi::where('status', 'Publik')
         ->select(['id', 'judul', 'ringkasan', 'gambar_url', 'kategori', 'published_at'])
@@ -289,11 +289,14 @@
                                                 </div>
                                             @endif
                                         </div>
-                                        {{-- Judul --}}
-                                        <div class="p-3.5 flex flex-col flex-1 pointer-events-none">
+                                        {{-- Judul & Statistik --}}
+                                        <div class="p-3.5 flex flex-col flex-1 justify-between pointer-events-none">
                                             <h3 class="font-bold text-[13px] text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-3">
                                                 {{ $book->judul }}
                                             </h3>
+                                            <div class="flex items-center gap-1 mt-2 text-[11px] text-[#94a3b8] dark:text-slate-500 font-normal">
+                                                <span>👁 {{ number_format($book->jumlah_dibaca ?? 0) }} dilihat</span>
+                                            </div>
                                         </div>
                                     </a>
                                 </div>

@@ -134,7 +134,7 @@
                         <th class="px-4 py-3">Informasi E-Book</th>
                         <th class="px-4 py-3">Kategori</th>
                         <th class="px-4 py-3 hidden md:table-cell">Tanggal</th>
-                        <th class="px-4 py-3 hidden lg:table-cell">Unduhan</th>
+                        <th class="px-4 py-3 hidden lg:table-cell">Statistik</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3 text-right">Aksi</th>
                     </tr>
@@ -215,13 +215,22 @@
                                 </div>
                             </td>
 
-                            {{-- Unduhan --}}
+                            {{-- Statistik: Dibaca & Diunduh --}}
                             <td class="px-4 py-3.5 whitespace-nowrap text-xs text-slate-700 hidden lg:table-cell">
-                                <div class="flex items-center gap-1 font-semibold text-slate-900">
-                                    <svg class="w-3.5 h-3.5 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                    </svg>
-                                    <span>{{ number_format($b->jumlah_unduhan) }}x</span>
+                                <div class="flex flex-col gap-1 text-[11px]">
+                                    <div class="flex items-center gap-1 font-semibold text-slate-900" title="Jumlah Dibaca">
+                                        <svg class="w-3.5 h-3.5 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        <span>{{ number_format($b->jumlah_dibaca ?? 0) }}x dibaca</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 text-slate-500" title="Jumlah Diunduh">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                        </svg>
+                                        <span>{{ number_format($b->jumlah_unduhan ?? 0) }}x diunduh</span>
+                                    </div>
                                 </div>
                             </td>
 

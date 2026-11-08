@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $cover_url
  * @property int|null $ukuran_file
  * @property int $jumlah_unduhan
+ * @property int $jumlah_dibaca
  * @property string $status
  * @property int|null $created_by
  * @property Carbon|null $created_at
@@ -43,6 +44,7 @@ class Ebook extends Model
         'cover_url',
         'ukuran_file',
         'jumlah_unduhan',
+        'jumlah_dibaca',
         'status',
         'created_by',
     ];
@@ -51,6 +53,7 @@ class Ebook extends Model
         'tahun' => 'integer',
         'ukuran_file' => 'integer',
         'jumlah_unduhan' => 'integer',
+        'jumlah_dibaca' => 'integer',
     ];
 
     /** Kategori yang tersedia */

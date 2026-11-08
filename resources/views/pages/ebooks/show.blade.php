@@ -1,6 +1,7 @@
 @php
     $id = request()->route('id');
     $ebook = \App\Models\Ebook::where('status', 'Publik')->findOrFail($id);
+    $ebook->increment('jumlah_dibaca');
 
     $coverSrc = $ebook->cover_image;
     $pdfSrc   = $ebook->file_url ? Storage::disk('public')->url($ebook->file_url) : null;
@@ -147,6 +148,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                                 <span>Tahun Terbit {{ $ebook->tahun ?? '-' }}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-[#64748b] dark:text-slate-400">
+                                <span>👁 {{ number_format($ebook->jumlah_dibaca) }} dilihat</span>
                             </div>
                         </div>
                     </div>

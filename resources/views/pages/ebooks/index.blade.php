@@ -155,10 +155,13 @@
                                 </a>
                             </div>
 
-                            <div class="mt-2 flex flex-col flex-1">
+                            <div class="mt-2 flex flex-col flex-1 justify-between">
                                 <a href="{{ $detailUrl }}" wire:navigate.hover class="font-semibold text-xs sm:text-[13px] text-[#1e293b] dark:text-slate-200 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-tight line-clamp-2" title="{{ $book->judul }}">
                                     {{ $book->judul }}
                                 </a>
+                                <div class="flex items-center gap-1 mt-1.5 text-[11px] text-[#94a3b8] dark:text-slate-500 font-normal">
+                                    <span>👁 {{ number_format($book->jumlah_dibaca ?? 0) }} dilihat</span>
+                                </div>
                             </div>
                         </div>
                     @endforeach
