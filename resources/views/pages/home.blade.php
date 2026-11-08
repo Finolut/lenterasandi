@@ -58,7 +58,7 @@
                             {{-- Soft 3D Glow / Shadow Layer --}}
                             <div class="absolute -inset-2 bg-gradient-to-tr from-[#083575]/20 via-[#1D68BD]/15 to-sky-400/25 rounded-2xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
-                            <a href="{{ route('ebooks.show', $heroEbook->id) }}" wire:navigate.hover class="block relative">
+                            <a href="{{ route('ebooks.show', $heroEbook->id) }}" wire:navigate class="block relative">
                                 <div class="w-[220px] sm:w-[260px] md:w-[290px] lg:w-[310px] aspect-[2/3] bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(8,53,117,0.22)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.65)] ring-1 ring-black/5 dark:ring-white/10 group-hover:scale-[1.02] group-hover:-translate-y-1.5 transition-all duration-300 flex items-center justify-center">
                                     
                                     @if($coverSrc)
@@ -98,7 +98,7 @@
 
                         {{-- Judul Buku Tebal (H1) --}}
                         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#083575] dark:text-white tracking-tight leading-[1.18] mb-4">
-                            <a href="{{ route('ebooks.show', $heroEbook->id) }}" wire:navigate.hover class="hover:text-[#1D68BD] dark:hover:text-sky-300 transition-colors">
+                            <a href="{{ route('ebooks.show', $heroEbook->id) }}" wire:navigate class="hover:text-[#1D68BD] dark:hover:text-sky-300 transition-colors">
                                 {{ $heroEbook->judul }}
                             </a>
                         </h1>
@@ -265,7 +265,7 @@
                                     x-init="$nextTick(() => { if (window.renderPdfCovers) window.renderPdfCovers(); })"
                                     class="ebook-card flex-none w-[160px] sm:w-[185px] md:w-[195px] bg-white dark:bg-slate-900 rounded-xl border border-[#e5e7eb] dark:border-slate-800 hover:border-[#BFDBFE] dark:hover:border-sky-700 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-200 group overflow-hidden flex flex-col"
                                 >
-                                    <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate.hover draggable="false" ondragstart="return false;" class="ebook-card-link flex flex-col h-full select-none">
+                                    <a href="{{ route('ebooks.show', $book->id) }}" wire:navigate draggable="false" ondragstart="return false;" class="ebook-card-link flex flex-col h-full select-none">
                                         {{-- Cover --}}
                                         <div class="relative w-full bg-[#f8fafc] dark:bg-slate-950/60 overflow-hidden border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center rounded-t-xl" style="aspect-ratio: 2/3;">
                                             @if($coverSrc)
@@ -289,14 +289,11 @@
                                                 </div>
                                             @endif
                                         </div>
-                                        {{-- Judul & Statistik --}}
-                                        <div class="p-3.5 flex flex-col flex-1 justify-between pointer-events-none">
+                                        {{-- Judul --}}
+                                        <div class="p-3.5 flex flex-col flex-1 pointer-events-none">
                                             <h3 class="font-bold text-[13px] text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-3">
                                                 {{ $book->judul }}
                                             </h3>
-                                            <div class="flex items-center gap-1 mt-2 text-[11px] text-[#94a3b8] dark:text-slate-500 font-normal">
-                                                <span>👁 {{ number_format($book->jumlah_dibaca ?? 0) }} dilihat</span>
-                                            </div>
                                         </div>
                                     </a>
                                 </div>

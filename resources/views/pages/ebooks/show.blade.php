@@ -1,7 +1,19 @@
 @php
     $id = request()->route('id');
     $ebook = \App\Models\Ebook::where('status', 'Publik')->findOrFail($id);
-    $ebook->increment('jumlah_dibaca');
+
+    // Cegah auto-increment jika request berupa prefetch atau sudah dibuka pada sesi ini
+    $isPrefetch = request()->header('Purpose') === 'prefetch' 
+        || request()->header('Sec-Purpose') === 'prefetch'
+        || request()->hasHeader('X-Livewire-Prefetch');
+
+    if (!$isPrefetch) {
+        $viewedKey = 'viewed_ebook_' . $ebook->id;
+        if (!session()->has($viewedKey)) {
+            $ebook->increment('jumlah_dibaca');
+            session()->put($viewedKey, true);
+        }
+    }
 
     $coverSrc = $ebook->cover_image;
     $pdfSrc   = $ebook->file_url ? Storage::disk('public')->url($ebook->file_url) : null;
@@ -248,7 +260,7 @@
                                         class="relative w-full bg-[#f8fafc] dark:bg-slate-900 rounded-lg shadow-xs group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-200 border border-[#e2e8f0] dark:border-slate-800 overflow-hidden"
                                         style="aspect-ratio: 2/3;"
                                     >
-                                        <a href="{{ $relDetailUrl }}" wire:navigate.hover class="block w-full h-full relative cursor-pointer">
+                                        <a href="{{ $relDetailUrl }}" wire:navigate class="block w-full h-full relative cursor-pointer">
                                             @if($relCover)
                                                 <img src="{{ $relCover }}" alt="{{ $relBook->judul }}" class="w-full h-full object-cover object-top" loading="lazy">
                                             @elseif($relPdf)
@@ -275,7 +287,7 @@
                                     </div>
 
                                     <div class="mt-2 flex flex-col flex-1">
-                                        <a href="{{ $relDetailUrl }}" wire:navigate.hover class="font-semibold text-xs sm:text-[13px] text-[#1e293b] dark:text-slate-200 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-tight line-clamp-2" title="{{ $relBook->judul }}">
+                                        <a href="{{ $relDetailUrl }}" wire:navigate class="font-semibold text-xs sm:text-[13px] text-[#1e293b] dark:text-slate-200 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-tight line-clamp-2" title="{{ $relBook->judul }}">
                                             {{ $relBook->judul }}
                                         </a>
                                     </div>

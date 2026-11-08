@@ -27,7 +27,11 @@ Route::prefix('koleksi')->name('ebooks.')->group(function () {
         $ebook = \App\Models\Ebook::findOrFail($id);
         if (!$ebook->file_url || !Storage::disk('public')->exists($ebook->file_url)) abort(404, 'File tidak ditemukan');
         
-        $ebook->increment('jumlah_dibaca');
+        $readKey = 'read_ebook_' . $ebook->id;
+        if (!session()->has($readKey) && !session()->has('viewed_ebook_' . $ebook->id)) {
+            $ebook->increment('jumlah_dibaca');
+            session()->put($readKey, true);
+        }
         return Storage::disk('public')->response($ebook->file_url, $ebook->judul . '.pdf', [
             'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . addslashes($ebook->judul) . '.pdf"',

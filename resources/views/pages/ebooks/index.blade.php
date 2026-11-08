@@ -129,7 +129,7 @@
                             <div
                                 class="relative w-full aspect-[2/3] bg-[#f8fafc] dark:bg-slate-900 rounded-lg shadow-xs group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-200 border border-[#e2e8f0] dark:border-slate-800 overflow-hidden"
                             >
-                                <a href="{{ $detailUrl }}" wire:navigate.hover class="block w-full h-full relative cursor-pointer">
+                                <a href="{{ $detailUrl }}" wire:navigate class="block w-full h-full relative cursor-pointer">
                                     @if($coverSrc)
                                         <img src="{{ $coverSrc }}" alt="{{ $book->judul }}" class="w-full h-full object-cover object-top" loading="lazy">
                                     @elseif($pdfSrc)
@@ -156,7 +156,7 @@
                             </div>
 
                             <div class="mt-2 flex flex-col flex-1 justify-between">
-                                <a href="{{ $detailUrl }}" wire:navigate.hover class="font-semibold text-xs sm:text-[13px] text-[#1e293b] dark:text-slate-200 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-tight line-clamp-2" title="{{ $book->judul }}">
+                                <a href="{{ $detailUrl }}" wire:navigate class="font-semibold text-xs sm:text-[13px] text-[#1e293b] dark:text-slate-200 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-tight line-clamp-2" title="{{ $book->judul }}">
                                     {{ $book->judul }}
                                 </a>
                                 <div class="flex items-center gap-1 mt-1.5 text-[11px] text-[#94a3b8] dark:text-slate-500 font-normal">
