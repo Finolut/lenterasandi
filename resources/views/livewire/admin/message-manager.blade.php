@@ -1,11 +1,12 @@
 <div>
-    {{-- Header & Metrics Summary --}}
+    {{-- Header & Actions --}}
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
             <div class="flex items-center gap-2.5">
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Pesan Masuk &amp; Permohonan Akses</h1>
                 @if($totalUnread > 0)
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200/70">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                         {{ $totalUnread }} Belum Dibaca
                     </span>
                 @endif
@@ -17,9 +18,9 @@
             <button
                 type="button"
                 wire:click="markAllAsRead"
-                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-xs transition-colors cursor-pointer"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-white border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-700 shadow-2xs transition-colors cursor-pointer shrink-0"
             >
-                <svg class="w-4 h-4 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 <span>Tandai Semua Dibaca</span>
@@ -29,22 +30,23 @@
 
     {{-- Session Flash Message --}}
     @if(session()->has('success'))
-        <div class="mb-5 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-xs sm:text-sm text-emerald-800 flex items-center justify-between shadow-xs">
+        <div class="mb-5 rounded-lg bg-emerald-50 border border-emerald-200/80 px-4 py-2.5 text-xs text-emerald-800 flex items-center justify-between">
             <div class="flex items-center gap-2 font-medium">
                 <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 <span>{{ session('success') }}</span>
             </div>
         </div>
     @endif
 
-    {{-- Filter Card --}}
-    <div class="bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs mb-5">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+    {{-- Cohesive Single Container: Search Toolbar, Status Filter & Table --}}
+    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+        {{-- Integrated Filter Toolbar --}}
+        <div class="p-3.5 sm:p-4 border-b border-slate-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             {{-- Search Bar --}}
-            <div class="md:col-span-8 relative">
-                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <div class="relative flex-1 max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
@@ -52,16 +54,16 @@
                 <input
                     wire:model.live.debounce.300ms="search"
                     type="search"
-                    placeholder="Cari nama pemohon, instansi, email, telepon, atau judul..."
-                    class="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-all"
+                    placeholder="Cari nama pemohon, instansi, atau dokumen..."
+                    class="w-full pl-9 pr-3 h-9 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-900 placeholder:text-slate-400 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-colors"
                 />
             </div>
 
-            {{-- Status Filter --}}
-            <div class="md:col-span-4">
+            {{-- Status Filter & Reset Action --}}
+            <div class="flex items-center gap-2 shrink-0">
                 <select
                     wire:model.live="selectedStatus"
-                    class="w-full px-3.5 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-lg text-slate-700 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-all cursor-pointer font-medium"
+                    class="h-9 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-700 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-colors cursor-pointer font-medium"
                 >
                     <option value="Semua">Semua Status ({{ $totalAll }})</option>
                     <option value="Belum Dibaca">Belum Dibaca ({{ $totalUnread }})</option>
@@ -69,64 +71,48 @@
                     <option value="Disetujui">Disetujui ({{ $totalApproved }})</option>
                     <option value="Ditolak">Ditolak</option>
                 </select>
+
+                @if($search !== '' || $selectedStatus !== 'Semua')
+                    <button
+                        type="button"
+                        wire:click="$set('search', ''); $set('selectedStatus', 'Semua');"
+                        class="h-9 px-3 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-600 transition-colors cursor-pointer"
+                        title="Reset filter"
+                    >
+                        Reset Filter
+                    </button>
+                @endif
             </div>
         </div>
 
-        {{-- Active Filters indicator --}}
-        @if($search !== '' || $selectedStatus !== 'Semua')
-            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-2 text-xs text-slate-500">
-                    <span>Filter aktif:</span>
-                    @if($search !== '')
-                        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
-                            "{{ $search }}"
-                        </span>
-                    @endif
-                    @if($selectedStatus !== 'Semua')
-                        <span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 px-2 py-0.5 rounded font-medium">
-                            Status: {{ $selectedStatus }}
-                        </span>
-                    @endif
+        {{-- Integrated Bulk Action Bar --}}
+        @if(count($selectedIds) > 0)
+            <div class="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs text-slate-700">
+                <div class="flex items-center gap-2 font-medium">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#0284c7] text-white text-[11px] font-semibold">
+                        {{ count($selectedIds) }}
+                    </span>
+                    <span>permohonan dipilih</span>
                 </div>
                 <button
-                    wire:click="$set('search', ''); $set('selectedStatus', 'Semua');"
-                    class="text-xs font-semibold text-[#0284c7] hover:text-[#0369a1] hover:underline cursor-pointer"
+                    wire:click="deleteSelected"
+                    wire:confirm="Hapus {{ count($selectedIds) }} permohonan yang dipilih? Tindakan ini tidak dapat dibatalkan."
+                    type="button"
+                    class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-medium text-rose-700 bg-white border border-rose-200 hover:bg-rose-50 shadow-2xs transition-colors cursor-pointer"
                 >
-                    Reset Filter
+                    <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    <span>Hapus Terpilih</span>
                 </button>
             </div>
         @endif
-    </div>
 
-    {{-- Bulk Action Bar --}}
-    @if(count($selectedIds) > 0)
-        <div class="mb-4 bg-sky-50 border border-sky-200 text-sky-800 rounded-lg px-4 py-2.5 flex items-center justify-between gap-3 shadow-xs">
-            <div class="flex items-center gap-2 text-xs font-medium">
-                <span class="w-5 h-5 rounded-full bg-[#0284c7] text-white flex items-center justify-center text-[11px] font-bold">
-                    {{ count($selectedIds) }}
-                </span>
-                <span>pesan dipilih</span>
-            </div>
-            <button
-                wire:click="deleteSelected"
-                wire:confirm="Hapus {{ count($selectedIds) }} pesan yang dipilih? Tindakan ini tidak dapat dibatalkan."
-                type="button"
-                class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 bg-white border border-rose-200 hover:bg-rose-50 px-3 py-1.5 rounded-lg shadow-xs transition-colors cursor-pointer"
-            >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-                <span>Hapus Terpilih</span>
-            </button>
-        </div>
-    @endif
-
-    {{-- Table Card --}}
-    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+        {{-- Request Table --}}
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-slate-50/75 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    <tr class="bg-slate-50/75 border-b border-slate-100 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                         <th class="px-4 py-3 w-10 text-center">
                             <input
                                 type="checkbox"
@@ -134,16 +120,16 @@
                                 class="w-4 h-4 rounded text-[#0284c7] border-slate-300 focus:ring-[#0284c7] cursor-pointer"
                             />
                         </th>
-                        <th class="px-4 py-3">Pemohon</th>
-                        <th class="px-4 py-3">Kontak</th>
-                        <th class="px-4 py-3 hidden md:table-cell">Artikel &amp; Berkas</th>
-                        <th class="px-4 py-3 hidden lg:table-cell">Waktu Pengajuan</th>
-                        <th class="px-4 py-3 text-right">Aksi</th>
+                        <th class="px-4 py-3 text-left min-w-[180px]">Pemohon</th>
+                        <th class="px-4 py-3 text-left min-w-[220px]">Dokumen Dimohonkan</th>
+                        <th class="px-4 py-3 text-left whitespace-nowrap min-w-[140px]">Waktu Pengajuan</th>
+                        <th class="px-4 py-3 text-left whitespace-nowrap min-w-[110px]">Status</th>
+                        <th class="px-4 py-3 text-right whitespace-nowrap min-w-[100px]">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($messages as $msg)
-                        <tr class="hover:bg-slate-50/60 transition-colors {{ $msg->dibaca_at === null ? 'bg-sky-50/20' : '' }}">
+                        <tr class="hover:bg-slate-50/70 transition-colors {{ $msg->dibaca_at === null ? 'bg-sky-50/20' : '' }}">
                             {{-- Checkbox --}}
                             <td class="px-4 py-3.5 text-center">
                                 <input
@@ -154,81 +140,82 @@
                                 />
                             </td>
 
-                            {{-- Pemohon (Plain Text Tanpa Tombol/Navigasi) --}}
+                            {{-- Pemohon (Nama & Instansi) --}}
                             <td class="px-4 py-3.5">
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2.5">
                                     @if($msg->dibaca_at === null)
-                                        <span class="w-2 h-2 rounded-full bg-[#0284c7] shrink-0" title="Pesan Baru"></span>
+                                        <span class="w-2 h-2 rounded-full bg-[#0284c7] shrink-0" title="Permohonan Baru (Belum Dibaca)"></span>
                                     @endif
                                     <div class="min-w-0">
-                                        <div class="font-semibold text-xs sm:text-sm text-slate-900 select-text">
+                                        <div class="text-xs sm:text-sm font-semibold text-slate-900 truncate">
                                             {{ $msg->nama_lengkap }}
                                         </div>
-                                        <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                                            <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                            </svg>
-                                            <span class="truncate max-w-[180px]">{{ $msg->instansi }}</span>
+                                        <div class="text-xs text-slate-500 mt-0.5 truncate max-w-[200px]">
+                                            {{ $msg->instansi ?: 'Individu / Umum' }}
                                         </div>
                                     </div>
                                 </div>
                             </td>
 
-                            {{-- Kontak (Plain Text Tanpa Link Mailto/Navigasi) --}}
-                            <td class="px-4 py-3.5 text-xs text-slate-700">
-                                <div class="flex items-center gap-1.5 font-medium select-text">
-                                    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span class="truncate max-w-[170px]" title="{{ $msg->email }}">{{ $msg->email }}</span>
-                                </div>
-                                @if($msg->telepon)
-                                    <div class="flex items-center gap-1.5 text-slate-500 mt-0.5 font-mono text-[11px] select-text">
-                                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                        </svg>
-                                        <span>{{ $msg->telepon }}</span>
-                                    </div>
-                                @endif
-                            </td>
-
-                            {{-- Artikel & Berkas (Plain Text Tanpa Tombol/Navigasi) --}}
-                            <td class="px-4 py-3.5 text-xs hidden md:table-cell">
+                            {{-- Dokumen Dimohonkan (Artikel & Berkas) --}}
+                            <td class="px-4 py-3.5 max-w-[260px]">
                                 @if($msg->informasi)
-                                    <div class="font-medium text-slate-800 line-clamp-1 max-w-[220px]" title="{{ $msg->informasi->judul }}">
+                                    <div class="text-xs font-medium text-slate-900 truncate" title="{{ $msg->informasi->judul }}">
                                         {{ $msg->informasi->judul }}
                                     </div>
                                     @if($msg->informasi->file_pendukung_nama)
-                                        <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 truncate max-w-[200px]" title="{{ $msg->informasi->file_pendukung_nama }}">
-                                            <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        <div class="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5 truncate" title="{{ $msg->informasi->file_pendukung_nama }}">
+                                            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                             </svg>
                                             <span class="truncate">{{ $msg->informasi->file_pendukung_nama }}</span>
                                         </div>
                                     @endif
                                 @else
-                                    <span class="text-slate-400 italic">Artikel telah dihapus</span>
+                                    <span class="text-xs text-slate-400 italic">Artikel telah dihapus</span>
                                 @endif
                             </td>
 
-                            {{-- Waktu --}}
-                            <td class="px-4 py-3.5 whitespace-nowrap text-xs text-slate-500 hidden lg:table-cell">
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <span>{{ $msg->created_at ? $msg->created_at->diffForHumans() : '—' }}</span>
+                            {{-- Waktu Pengajuan (Format Indonesia) --}}
+                            <td class="px-4 py-3.5 whitespace-nowrap">
+                                <div class="text-xs font-medium text-slate-800">
+                                    {{ $msg->created_at ? $msg->created_at->locale('id')->translatedFormat('d M Y, H:i') : '—' }}
                                 </div>
+                                @if($msg->created_at)
+                                    <div class="text-[11px] text-slate-400 mt-0.5">
+                                        {{ $msg->created_at->diffForHumans() }}
+                                    </div>
+                                @endif
                             </td>
 
-                            {{-- Aksi --}}
+                            {{-- Status Permohonan (Subtle Indicators) --}}
+                            <td class="px-4 py-3.5 whitespace-nowrap">
+                                @if($msg->status === 'Disetujui')
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Disetujui
+                                    </span>
+                                @elseif($msg->status === 'Menunggu')
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/80">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        Menunggu
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/80">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                        Ditolak
+                                    </span>
+                                @endif
+                            </td>
+
+                            {{-- Aksi Kontekstual --}}
                             <td class="px-4 py-3.5 whitespace-nowrap text-right">
                                 <div class="flex items-center justify-end gap-1.5">
                                     <button
                                         type="button"
                                         wire:click="viewMessage({{ $msg->id }})"
-                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-[#0284c7] bg-sky-50 hover:bg-sky-100 border border-sky-200/60 rounded-lg transition-colors cursor-pointer"
-                                        title="Buka Detail Pesan"
+                                        class="h-7.5 px-2.5 inline-flex items-center gap-1 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-[#0284c7] hover:border-slate-300 shadow-2xs transition-colors cursor-pointer"
+                                        title="Buka Detail Permohonan"
                                     >
                                         <span>Detail</span>
                                     </button>
@@ -236,9 +223,9 @@
                                     <button
                                         type="button"
                                         wire:click="deleteMessage({{ $msg->id }})"
-                                        wire:confirm="Hapus pesan permohonan dari {{ $msg->nama_lengkap }}?"
-                                        class="inline-flex items-center gap-1 p-1.5 text-xs font-semibold text-rose-600 bg-rose-50/70 hover:bg-rose-100 border border-rose-200/60 rounded-lg transition-colors cursor-pointer"
-                                        title="Hapus Pesan"
+                                        wire:confirm="Hapus permohonan dari {{ $msg->nama_lengkap }}?"
+                                        class="h-7.5 w-7.5 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                        title="Hapus Permohonan"
                                     >
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -249,15 +236,21 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-16 text-center">
+                            <td colspan="6" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                    <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center mb-2.5">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-9 h-9 rounded-md bg-slate-100 text-slate-400 flex items-center justify-center mb-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                                         </svg>
                                     </div>
-                                    <h3 class="text-sm font-bold text-slate-900 mb-0.5">Belum Ada Pesan Masuk</h3>
-                                    <p class="text-xs text-slate-500">Permohonan akses berkas dari pengunjung portal akan tampil di sini.</p>
+                                    <h3 class="text-xs font-semibold text-slate-900 mb-0.5">Tidak Ada Permohonan Akses</h3>
+                                    <p class="text-xs text-slate-500">
+                                        @if($search !== '' || $selectedStatus !== 'Semua')
+                                            Tidak ada hasil yang sesuai dengan kriteria filter saat ini.
+                                        @else
+                                            Permohonan akses berkas dari pengunjung portal akan tampil di sini.
+                                        @endif
+                                    </p>
                                 </div>
                             </td>
                         </tr>
@@ -267,10 +260,12 @@
         </div>
 
         {{-- Pagination Footer --}}
-        <div class="px-5 py-3.5 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/75">
+        <div class="px-4 py-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50">
             <span class="text-xs text-slate-500">
                 @if($messages->total())
-                    Menampilkan {{ $messages->firstItem() }} - {{ $messages->lastItem() }} dari {{ $messages->total() }} pesan masuk
+                    Menampilkan {{ $messages->firstItem() }} - {{ $messages->lastItem() }} dari {{ $messages->total() }} permohonan
+                @else
+                    0 permohonan
                 @endif
             </span>
             <div>

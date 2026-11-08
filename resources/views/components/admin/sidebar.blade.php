@@ -95,28 +95,28 @@ $navItems = [
                         href="{{ route($item['route']) }}"
                         wire:navigate
                         @click="sidebarOpen = false"
-                        class="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-150 {{ $isActive ? 'bg-white text-[#083575] shadow-sm font-bold' : 'text-sky-100 hover:text-white hover:bg-white/10' }}"
+                        class="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-150 {{ $isActive ? 'bg-white/12 text-white font-semibold ring-1 ring-white/15 shadow-xs' : 'text-sky-100/90 hover:text-white hover:bg-white/8' }}"
                     >
                         <div class="flex items-center gap-2.5 min-w-0">
                             {{-- SVG Icons --}}
                             @if($item['icon'] === 'dashboard')
-                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-[#083575]' : 'text-sky-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-sky-300' : 'text-sky-300/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                                 </svg>
                             @elseif($item['icon'] === 'book')
-                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-[#083575]' : 'text-sky-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-sky-300' : 'text-sky-300/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                 </svg>
                             @elseif($item['icon'] === 'newspaper')
-                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-[#083575]' : 'text-sky-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-sky-300' : 'text-sky-300/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                                 </svg>
                             @elseif($item['icon'] === 'inbox')
-                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-[#083575]' : 'text-sky-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-sky-300' : 'text-sky-300/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                                 </svg>
                             @elseif($item['icon'] === 'users')
-                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-[#083575]' : 'text-sky-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 shrink-0 {{ $isActive ? 'text-sky-300' : 'text-sky-300/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                                 </svg>
                             @endif
@@ -124,7 +124,7 @@ $navItems = [
                         </div>
 
                         @if($item['badge'] !== null)
-                            <span class="px-2 py-0.5 rounded text-[11px] font-semibold font-mono {{ $item['icon'] === 'inbox' && !$isActive ? 'bg-amber-400 text-slate-900 font-bold' : ($isActive ? 'bg-[#083575] text-white' : 'bg-white/15 text-sky-100') }}">
+                            <span class="px-2 py-0.5 rounded text-[11px] font-semibold font-mono {{ $item['icon'] === 'inbox' && !$isActive ? 'bg-amber-400 text-slate-900 font-bold' : ($isActive ? 'bg-sky-400/20 text-sky-200 border border-sky-400/30' : 'bg-white/15 text-sky-100') }}">
                                 {{ $item['badge'] }}
                             </span>
                         @endif
