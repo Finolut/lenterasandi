@@ -67,22 +67,22 @@
             </div>
         </div>
 
-        {{-- Card 3: Total Unduhan --}}
+        {{-- Card 3: Total Pembaca E-Book --}}
         <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs">
             <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Unduhan</span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Pembaca</span>
                 <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                     </svg>
                 </div>
             </div>
             <div class="flex items-baseline gap-2 mb-2">
-                <span class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{{ number_format($totalUnduhan) }}</span>
-                <span class="text-xs font-medium text-slate-500">kali diunduh</span>
+                <span class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{{ number_format($totalPembaca ?? $totalUnduhan ?? 0) }}</span>
+                <span class="text-xs font-medium text-slate-500">kali dibaca</span>
             </div>
             <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
-                <span class="text-slate-500">Akumulasi PDF</span>
+                <span class="text-slate-500">Pembaca e-book</span>
                 <span class="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200/60 font-semibold px-2 py-0.5 rounded">
                     Akses Terbuka
                 </span>
@@ -92,7 +92,7 @@
         {{-- Card 4: Total Pembaca Artikel --}}
         <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs">
             <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Pembaca</span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Pembaca Artikel</span>
                 <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -180,7 +180,7 @@
                             <tr class="bg-slate-50/75 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                                 <th class="py-3 px-5">E-Book</th>
                                 <th class="py-3 px-4">Kategori</th>
-                                <th class="py-3 px-4">Unduhan</th>
+                                <th class="py-3 px-4">Statistik</th>
                                 <th class="py-3 px-4">Status</th>
                                 <th class="py-3 px-5 text-right">Aksi</th>
                             </tr>
@@ -194,7 +194,7 @@
                                 <tr class="hover:bg-slate-50/60 transition-colors">
                                     <td class="py-3 px-5">
                                         <div class="flex items-center gap-3">
-                                            {{-- Mini Cover Thumbnail --}}
+                                            {{-- Mini Cover Thumbnail (compressed & lazy) --}}
                                             <div class="w-10 h-14 rounded overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs flex items-center justify-center relative shrink-0">
                                                 @if($coverSrc)
                                                     <img
@@ -202,6 +202,10 @@
                                                         alt="Cover {{ $ebook->judul }}"
                                                         class="w-full h-full object-cover"
                                                         loading="lazy"
+                                                        decoding="async"
+                                                        fetchpriority="low"
+                                                        width="40"
+                                                        height="56"
                                                     >
                                                 @elseif($pdfSrc)
                                                     <div class="pdf-cover-wrap relative w-full h-full bg-slate-100 overflow-hidden flex items-center justify-center" data-pdf-url="{{ $pdfSrc }}">
@@ -211,7 +215,7 @@
                                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                             </svg>
                                                         </div>
-                                                        <img class="pdf-cover-img w-full h-full object-cover hidden" alt="{{ $ebook->judul }}">
+                                                        <img class="pdf-cover-img w-full h-full object-cover hidden" alt="{{ $ebook->judul }}" loading="lazy" decoding="async">
                                                     </div>
                                                 @else
                                                     <div class="w-full h-full bg-slate-100 flex flex-col items-center justify-center text-slate-400">
@@ -243,7 +247,10 @@
                                         </span>
                                     </td>
                                     <td class="py-3 px-4 text-slate-800 font-semibold text-xs">
-                                        {{ number_format($ebook->jumlah_unduhan) }}x
+                                        <div class="flex flex-col">
+                                            <span>{{ number_format($ebook->jumlah_dibaca ?? 0) }}x dibaca</span>
+                                            <span class="text-[10px] text-slate-400 font-normal">{{ number_format($ebook->jumlah_unduhan ?? 0) }} unduhan</span>
+                                        </div>
                                     </td>
                                     <td class="py-3 px-4">
                                         @if($ebook->status === 'Publik')
@@ -345,10 +352,19 @@
                                 <tr class="hover:bg-slate-50/60 transition-colors">
                                     <td class="py-3 px-5">
                                         <div class="flex items-center gap-3">
-                                            {{-- Mini Banner 16:9 --}}
-                                            <div class="w-14 h-9 rounded bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                            {{-- Mini Banner 16:9 (compressed & lazy) --}}
+                                            <div class="w-14 h-9 rounded bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-2xs">
                                                 @if($gambar)
-                                                    <img src="{{ $gambar }}" alt="{{ $art->judul }}" class="w-full h-full object-cover">
+                                                    <img
+                                                        src="{{ $gambar }}"
+                                                        alt="{{ $art->judul }}"
+                                                        class="w-full h-full object-cover"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        fetchpriority="low"
+                                                        width="56"
+                                                        height="36"
+                                                    >
                                                 @else
                                                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>

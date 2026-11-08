@@ -78,18 +78,23 @@
                     const pdf = await loadingTask.promise;
                     const page = await pdf.getPage(1);
                     
-                    const viewport = page.getViewport({ scale: 1.0 });
+                    const originalViewport = page.getViewport({ scale: 1.0 });
+                    // Scale down canvas for thumbnail (compressed & fast)
+                    const targetWidth = 160;
+                    const scale = Math.min(1.0, targetWidth / (originalViewport.width || targetWidth));
+                    const viewport = page.getViewport({ scale: scale });
                     const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
+                    const ctx = canvas.getContext('2d', { alpha: false });
+                    canvas.width = Math.max(40, Math.round(viewport.width));
+                    canvas.height = Math.max(56, Math.round(viewport.height));
 
                     await page.render({
                         canvasContext: ctx,
                         viewport: viewport
                     }).promise;
 
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    // Compress to lightweight JPEG quality 0.75 (~8-12KB)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
                     try {
                         sessionStorage.setItem(cacheKey, dataUrl);
                     } catch(e) {}

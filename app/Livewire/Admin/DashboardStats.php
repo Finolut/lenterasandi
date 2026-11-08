@@ -18,6 +18,7 @@ class DashboardStats extends Component
             // 1. Ebook Aggregated Metrics in single query
             $ebookAgg = Ebook::selectRaw("
                 count(*) as total,
+                coalesce(sum(jumlah_dibaca), 0) as total_pembaca,
                 coalesce(sum(jumlah_unduhan), 0) as total_unduhan,
                 count(case when created_at >= ? then 1 end) as minggu_ini,
                 count(case when created_at >= ? then 1 end) as bulan_ini,
@@ -46,6 +47,7 @@ class DashboardStats extends Component
             return [
                 'totalEbook'         => (int) ($ebookAgg->total ?? 0),
                 'totalInformasi'     => (int) ($infoAgg->total ?? 0),
+                'totalPembaca'       => (int) ($ebookAgg->total_pembaca ?? 0),
                 'totalUnduhan'       => (int) ($ebookAgg->total_unduhan ?? 0),
                 'totalViews'         => (int) ($infoAgg->total_views ?? 0),
                 'ebookMingguIni'     => (int) ($ebookAgg->minggu_ini ?? 0),
@@ -69,9 +71,9 @@ class DashboardStats extends Component
         $stats['totalPesan']     = (int) ($pesanStats->total ?? 0);
         $stats['unreadPesan']    = (int) ($pesanStats->unread ?? 0);
 
-        // Recent items with lightweight selected columns
-        $stats['recentEbooks']   = Ebook::with('creator:id,name')->select(['id', 'judul', 'kategori', 'status', 'created_by', 'created_at', 'jumlah_unduhan'])->latest()->limit(5)->get();
-        $stats['recentArticles'] = Informasi::with('creator:id,name')->select(['id', 'judul', 'kategori', 'status', 'created_by', 'published_at', 'jumlah_dilihat'])->latest('published_at')->limit(5)->get();
+        // Recent items with lightweight selected columns (termasuk cover/thumbnail)
+        $stats['recentEbooks']   = Ebook::with('creator:id,name')->select(['id', 'judul', 'kategori', 'status', 'cover_url', 'file_url', 'created_by', 'created_at', 'jumlah_dibaca', 'jumlah_unduhan'])->latest()->limit(5)->get();
+        $stats['recentArticles'] = Informasi::with('creator:id,name')->select(['id', 'judul', 'kategori', 'status', 'gambar_url', 'created_by', 'published_at', 'jumlah_dilihat'])->latest('published_at')->limit(5)->get();
         $stats['recentMessages'] = \App\Models\PermohonanAkses::with('informasi:id,judul')->select(['id', 'informasi_id', 'nama_lengkap', 'instansi', 'status', 'dibaca_at', 'created_at'])->latest()->limit(5)->get();
 
         return view('livewire.admin.dashboard-stats', $stats);
