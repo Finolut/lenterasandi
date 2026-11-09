@@ -122,6 +122,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::view('/{id}/edit', 'pages.admin.ebooks.edit')->name('edit');
     });
 
+    // E-Book Rekomendasi Mingguan (Hero Beranda)
+    Route::view('/ebook-mingguan', 'pages.admin.ebook-mingguan.index')->name('mingguan.index');
+
     // Information / News Management
     Route::prefix('informasi')->name('informasi.')->group(function () {
         Route::view('/', 'pages.admin.informasi.index')->name('index');

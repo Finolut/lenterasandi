@@ -113,33 +113,31 @@
                             {{ $sinopsis }}
                         </p>
 
-                        {{-- 2 Tombol Aksi: 'Baca Sekarang' & 'Unduh' (Responsif Mobile & Desktop) --}}
-                        <div class="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                        {{-- 2 Tombol Aksi: 'Baca Sekarang' & 'Unduh' (Disembunyikan pada Mobile, Tampil di Desktop) --}}
+                        <div class="hidden sm:flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                             {{-- Tombol Baca Sekarang --}}
                             <a
                                 href="{{ route('ebooks.read', $heroEbook->id) }}"
                                 target="_blank"
-                                class="inline-flex items-center justify-center gap-2 px-3.5 sm:px-7 py-2.5 sm:py-3.5 rounded-xl font-semibold text-white bg-[#083575] hover:bg-[#0b489a] active:scale-[0.98] shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base group text-center"
-                                title="Baca Sekarang"
+                                class="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl font-semibold text-white bg-[#083575] hover:bg-[#0b489a] active:scale-[0.98] shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base group text-center"
                             >
                                 <svg class="w-5 h-5 text-sky-200 group-hover:scale-110 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
-                                <span class="hidden sm:inline">Baca Sekarang</span>
+                                <span>Baca Sekarang</span>
                             </a>
 
                             {{-- Tombol Unduh --}}
                             <a
                                 href="{{ route('ebooks.download', $heroEbook->id) }}"
-                                class="inline-flex items-center justify-center gap-2 px-3.5 sm:px-7 py-2.5 sm:py-3.5 rounded-xl font-semibold text-[#083575] dark:text-sky-300 bg-white dark:bg-slate-800 hover:bg-[#F8FAFC] dark:hover:bg-slate-700/80 border border-[#D0D5DD] dark:border-slate-700 active:scale-[0.98] shadow-xs hover:shadow-sm transition-all duration-200 text-sm sm:text-base group text-center"
-                                title="Unduh E-Book"
+                                class="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl font-semibold text-[#083575] dark:text-sky-300 bg-white dark:bg-slate-800 hover:bg-[#F8FAFC] dark:hover:bg-slate-700/80 border border-[#D0D5DD] dark:border-slate-700 active:scale-[0.98] shadow-xs hover:shadow-sm transition-all duration-200 text-sm sm:text-base group text-center"
                             >
                                 <svg class="w-5 h-5 text-[#1D68BD] dark:text-sky-400 group-hover:translate-y-0.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
-                                <span class="hidden sm:inline">Unduh</span>
+                                <span>Unduh</span>
                                 @if($heroEbook->ukuran_format && $heroEbook->ukuran_format !== '—')
-                                    <span class="hidden sm:inline text-xs font-normal text-[#64748B] dark:text-slate-400">({{ $heroEbook->ukuran_format }})</span>
+                                    <span class="text-xs font-normal text-[#64748B] dark:text-slate-400">({{ $heroEbook->ukuran_format }})</span>
                                 @endif
                             </a>
                         </div>

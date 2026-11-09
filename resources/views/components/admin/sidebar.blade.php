@@ -29,6 +29,12 @@ $navItems = [
         'badge' => $ebookCount,
     ],
     [
+        'label' => 'E-Book Mingguan',
+        'route' => 'admin.mingguan.index',
+        'icon'  => 'star',
+        'badge' => null,
+    ],
+    [
         'label' => 'Kelola Artikel',
         'route' => 'admin.informasi.index',
         'icon'  => 'newspaper',
@@ -116,6 +122,10 @@ $navItems = [
                                 <svg class="w-5 h-5 shrink-0 {{ $isActive ? 'text-white' : 'text-sky-300/70 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
                                     <path d="M12 7v14"/>
                                     <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
+                                </svg>
+                            @elseif($item['icon'] === 'star')
+                                <svg class="w-5 h-5 shrink-0 {{ $isActive ? 'text-white' : 'text-sky-300/70 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                                 </svg>
                             @elseif($item['icon'] === 'newspaper')
                                 <svg class="w-5 h-5 shrink-0 {{ $isActive ? 'text-white' : 'text-sky-300/70 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
