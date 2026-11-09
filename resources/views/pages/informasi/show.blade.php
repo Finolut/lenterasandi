@@ -1,8 +1,18 @@
 @php
     $informasi = \App\Models\Informasi::where('status', 'Publik')->findOrFail($id);
     
-    // Increment view count
-    $informasi->increment('jumlah_dilihat');
+    // Cegah auto-increment jika request berupa prefetch atau sudah dibuka pada sesi ini
+    $isPrefetch = request()->header('Purpose') === 'prefetch' 
+        || request()->header('Sec-Purpose') === 'prefetch'
+        || request()->hasHeader('X-Livewire-Prefetch');
+
+    if (!$isPrefetch) {
+        $viewedKey = 'viewed_informasi_' . $informasi->id;
+        if (!session()->has($viewedKey)) {
+            $informasi->increment('jumlah_dilihat');
+            session()->put($viewedKey, true);
+        }
+    }
 
     // Calculate reading time estimate
     $wordCount = str_word_count(strip_tags($informasi->konten ?? ''));
@@ -153,7 +163,7 @@
                         @foreach($related as $rel)
                             <article class="bg-white dark:bg-slate-900 rounded-xl border border-[#e2e8f0] dark:border-slate-800 overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-200 group flex flex-col h-full">
                                 <div class="relative w-full aspect-video bg-[#0f172a] overflow-hidden">
-                                    <a href="{{ route('informasi.show', $rel->id) }}" wire:navigate.hover class="block w-full h-full">
+                                    <a href="{{ route('informasi.show', $rel->id) }}" wire:navigate class="block w-full h-full">
                                         @if($rel->gambar)
                                             <img
                                                 src="{{ $rel->gambar }}"
@@ -185,7 +195,7 @@
                                         </div>
 
                                         <h3 class="text-sm font-bold text-[#0f3b7a] dark:text-slate-100 group-hover:text-[#1d4ed8] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-2 mb-2">
-                                            <a href="{{ route('informasi.show', $rel->id) }}" wire:navigate.hover>
+                                            <a href="{{ route('informasi.show', $rel->id) }}" wire:navigate>
                                                 {{ $rel->judul }}
                                             </a>
                                         </h3>
@@ -194,7 +204,7 @@
                                     <div class="pt-3 border-t border-[#f1f5f9] dark:border-slate-800 mt-3">
                                         <a
                                             href="{{ route('informasi.show', $rel->id) }}"
-                                            wire:navigate.hover
+                                            wire:navigate
                                             class="inline-flex items-center gap-1 text-xs font-semibold text-[#0284c7] dark:text-sky-400 hover:text-[#0369a1] dark:hover:text-sky-300 transition-colors"
                                         >
                                             <span>Baca Artikel</span>

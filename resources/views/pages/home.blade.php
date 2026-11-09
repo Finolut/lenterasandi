@@ -553,7 +553,7 @@
                             $thumbSrc = $news->gambar;
                         @endphp
                         <div class="bg-white dark:bg-slate-900 rounded-xl border border-[#e2e8f0] dark:border-slate-800 hover:border-[#cbd5e1] dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 group overflow-hidden flex flex-col h-full">
-                            <a href="{{ route('informasi.show', $news->id) }}" wire:navigate.hover class="flex flex-row sm:flex-col h-full cursor-pointer">
+                            <a href="{{ route('informasi.show', $news->id) }}" wire:navigate class="flex flex-row sm:flex-col h-full cursor-pointer">
                                 {{-- Thumbnail Berita (Horizontal kompak di Mobile, Aspect Video di Desktop) --}}
                                 <div class="relative w-28 xs:w-32 sm:w-full shrink-0 aspect-[4/3] sm:aspect-video bg-[#0f172a] overflow-hidden border-r sm:border-r-0 sm:border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center">
                                     @if($thumbSrc)
