@@ -35,6 +35,23 @@ class EbookManager extends Component
         $ebook->save();
     }
 
+    public function toggleMingguan(int $id): void
+    {
+        $ebook = Ebook::findOrFail($id);
+        if ($ebook->is_mingguan) {
+            $ebook->is_mingguan = false;
+            $ebook->save();
+        } else {
+            // Reset e-book lain yang sebelumnya mingguan, jadikan yang dipilih sebagai e-book mingguan
+            Ebook::where('is_mingguan', true)->update(['is_mingguan' => false]);
+            $ebook->is_mingguan = true;
+            if ($ebook->status !== 'Publik') {
+                $ebook->status = 'Publik';
+            }
+            $ebook->save();
+        }
+    }
+
     public function deleteEbook(int $id): void
     {
         $ebook = Ebook::findOrFail($id);

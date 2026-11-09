@@ -46,6 +46,7 @@ class Ebook extends Model
         'jumlah_unduhan',
         'jumlah_dibaca',
         'status',
+        'is_mingguan',
         'created_by',
     ];
 
@@ -54,6 +55,7 @@ class Ebook extends Model
         'ukuran_file' => 'integer',
         'jumlah_unduhan' => 'integer',
         'jumlah_dibaca' => 'integer',
+        'is_mingguan' => 'boolean',
     ];
 
     /** Kategori yang tersedia */

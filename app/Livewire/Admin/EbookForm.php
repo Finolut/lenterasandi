@@ -25,6 +25,7 @@ class EbookForm extends Component
     public string  $penerbit           = '';
     public string  $tahun              = '';
     public string  $status             = 'Publik';
+    public bool    $is_mingguan        = false;
 
     // File upload (Livewire temporary files)
     public $filePdf   = null;
@@ -67,6 +68,7 @@ class EbookForm extends Component
             $this->penerbit           = $ebook->penerbit ?? '';
             $this->tahun              = (string) ($ebook->tahun ?? date('Y'));
             $this->status             = $ebook->status;
+            $this->is_mingguan        = (bool) ($ebook->is_mingguan ?? false);
             $this->existingPdfUrl     = $ebook->file_url;
             $this->existingCoverUrl   = $ebook->cover_url;
 
@@ -198,10 +200,17 @@ class EbookForm extends Component
             'penerbit'   => $this->penerbit ?: null,
             'tahun'      => $this->tahun ?: null,
             'file_url'   => $pdfPath,
-            'cover_url'  => $coverPath,
-            'status'     => $this->status,
-            'created_by' => Auth::id(),
+            'cover_url'   => $coverPath,
+            'status'      => $this->status,
+            'is_mingguan' => $this->is_mingguan,
+            'created_by'  => Auth::id(),
         ];
+
+        if ($this->is_mingguan) {
+            Ebook::where('is_mingguan', true)
+                ->when($this->ebookId, fn($q) => $q->where('id', '!=', $this->ebookId))
+                ->update(['is_mingguan' => false]);
+        }
 
         if ($fileSize) {
             $data['ukuran_file'] = $fileSize;
@@ -219,9 +228,10 @@ class EbookForm extends Component
 
             $this->reset(['judul', 'selectedCategories', 'customCategoryInput', 'deskripsi', 'penerbit', 'filePdf', 'fileCover', 'coverUrlInput']);
             $this->selectedCategories = [];
-            $this->pengarang = 'Diskominfo Provinsi Jawa Timur';
-            $this->tahun     = (string) date('Y');
-            $this->status    = 'Publik';
+            $this->pengarang   = 'Diskominfo Provinsi Jawa Timur';
+            $this->tahun       = (string) date('Y');
+            $this->status      = 'Publik';
+            $this->is_mingguan = false;
         }
     }
 
