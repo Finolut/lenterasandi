@@ -5,7 +5,8 @@
     use Illuminate\Support\Str;
     
     $totalEbooks = Ebook::where('status', 'Publik')->count();
-    $heroEbook = Ebook::where('status', 'Publik')->latest()->first();
+    $heroEbook = Ebook::where('status', 'Publik')->where('is_mingguan', true)->first()
+        ?? Ebook::where('status', 'Publik')->latest()->first();
     $featuredEbooks = Ebook::where('status', 'Publik')
         ->select(['id', 'judul', 'kategori', 'file_url', 'cover_url', 'jumlah_dibaca', 'created_at'])
         ->latest()->take(6)->get();
@@ -112,31 +113,33 @@
                             {{ $sinopsis }}
                         </p>
 
-                        {{-- 2 Tombol Aksi: 'Baca Sekarang' & 'Unduh' (Responsif Full-Width pada Layar Kecil) --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                        {{-- 2 Tombol Aksi: 'Baca Sekarang' & 'Unduh' (Responsif Mobile & Desktop) --}}
+                        <div class="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                             {{-- Tombol Baca Sekarang --}}
                             <a
                                 href="{{ route('ebooks.read', $heroEbook->id) }}"
                                 target="_blank"
-                                class="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl font-semibold text-white bg-[#083575] hover:bg-[#0b489a] active:scale-[0.98] shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base group text-center"
+                                class="inline-flex items-center justify-center gap-2 px-3.5 sm:px-7 py-2.5 sm:py-3.5 rounded-xl font-semibold text-white bg-[#083575] hover:bg-[#0b489a] active:scale-[0.98] shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base group text-center"
+                                title="Baca Sekarang"
                             >
                                 <svg class="w-5 h-5 text-sky-200 group-hover:scale-110 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
-                                <span>Baca Sekarang</span>
+                                <span class="hidden sm:inline">Baca Sekarang</span>
                             </a>
 
                             {{-- Tombol Unduh --}}
                             <a
                                 href="{{ route('ebooks.download', $heroEbook->id) }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl font-semibold text-[#083575] dark:text-sky-300 bg-white dark:bg-slate-800 hover:bg-[#F8FAFC] dark:hover:bg-slate-700/80 border border-[#D0D5DD] dark:border-slate-700 active:scale-[0.98] shadow-xs hover:shadow-sm transition-all duration-200 text-sm sm:text-base group text-center"
+                                class="inline-flex items-center justify-center gap-2 px-3.5 sm:px-7 py-2.5 sm:py-3.5 rounded-xl font-semibold text-[#083575] dark:text-sky-300 bg-white dark:bg-slate-800 hover:bg-[#F8FAFC] dark:hover:bg-slate-700/80 border border-[#D0D5DD] dark:border-slate-700 active:scale-[0.98] shadow-xs hover:shadow-sm transition-all duration-200 text-sm sm:text-base group text-center"
+                                title="Unduh E-Book"
                             >
                                 <svg class="w-5 h-5 text-[#1D68BD] dark:text-sky-400 group-hover:translate-y-0.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
-                                <span>Unduh</span>
+                                <span class="hidden sm:inline">Unduh</span>
                                 @if($heroEbook->ukuran_format && $heroEbook->ukuran_format !== '—')
-                                    <span class="text-xs font-normal text-[#64748B] dark:text-slate-400">({{ $heroEbook->ukuran_format }})</span>
+                                    <span class="hidden sm:inline text-xs font-normal text-[#64748B] dark:text-slate-400">({{ $heroEbook->ukuran_format }})</span>
                                 @endif
                             </a>
                         </div>
@@ -203,27 +206,6 @@
                     <p class="text-xs sm:text-sm text-[#5A6A85] dark:text-slate-400 mt-1 line-clamp-1 sm:line-clamp-none">Buku panduan resmi, standar keamanan, dan materi literasi persandian Diskominfo Jatim.</p>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-                    {{-- Nav Arrows --}}
-                    @if($featuredEbooks->count() > 0)
-                        <div class="flex items-center gap-1 sm:gap-1.5" id="ebook-carousel-controls">
-                            <button id="ebook-prev"
-                                aria-label="Sebelumnya"
-                                class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 shadow-xs flex items-center justify-center text-[#083575] dark:text-sky-400 hover:bg-[#EFF6FF] dark:hover:bg-slate-700 hover:border-[#BFDBFE] dark:hover:border-sky-700 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                            >
-                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
-                                </svg>
-                            </button>
-                            <button id="ebook-next"
-                                aria-label="Selanjutnya"
-                                class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 shadow-xs flex items-center justify-center text-[#083575] dark:text-sky-400 hover:bg-[#EFF6FF] dark:hover:bg-slate-700 hover:border-[#BFDBFE] dark:hover:border-sky-700 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                            >
-                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </button>
-                        </div>
-                    @endif
                     <a href="{{ route('ebooks.index') }}" wire:navigate.hover class="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#1D68BD] dark:text-sky-400 hover:text-[#083575] dark:hover:text-sky-300 group">
                         <span class="hidden xs:inline">Semua</span><span> E-Book</span>
                         <span class="group-hover:translate-x-1 transition-transform">→</span>
@@ -552,7 +534,7 @@
                         @php
                             $thumbSrc = $news->gambar;
                         @endphp
-                        <div class="bg-white dark:bg-slate-900 rounded-xl border border-[#e2e8f0] dark:border-slate-800 hover:border-[#cbd5e1] dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 group overflow-hidden flex flex-col h-full">
+                        <div class="{{ $loop->iteration > 5 ? 'hidden sm:flex' : 'flex' }} bg-white dark:bg-slate-900 rounded-xl border border-[#e2e8f0] dark:border-slate-800 hover:border-[#cbd5e1] dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 group overflow-hidden flex-col h-full">
                             <a href="{{ route('informasi.show', $news->id) }}" wire:navigate class="flex flex-row sm:flex-col h-full cursor-pointer">
                                 {{-- Thumbnail Berita (Horizontal kompak di Mobile, Aspect Video di Desktop) --}}
                                 <div class="relative w-28 xs:w-32 sm:w-full shrink-0 aspect-[4/3] sm:aspect-video bg-[#0f172a] overflow-hidden border-r sm:border-r-0 sm:border-b border-[#f1f5f9] dark:border-slate-800 flex items-center justify-center">

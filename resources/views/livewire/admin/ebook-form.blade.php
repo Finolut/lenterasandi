@@ -494,19 +494,41 @@
         {{-- Kolom Kanan: Status & Berkas (1 Kolom) --}}
         <div class="space-y-5">
             {{-- Status Publikasi Card --}}
-            <div class="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 shadow-xs space-y-2">
-                <label class="block text-xs font-semibold text-slate-900">
-                    Status Publikasi
-                </label>
-                <select
-                    wire:model.live="status"
-                    class="w-full h-9 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-colors cursor-pointer font-medium"
-                >
-                    <option value="Publik">Publik</option>
-                    <option value="Draf">Draf</option>
-                    <option value="Disembunyikan">Disembunyikan</option>
-                </select>
-                <p class="text-[11px] text-slate-500">Status menentukan visibilitas e-book pada katalog publik.</p>
+            <div class="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 shadow-xs space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-900 mb-1.5">
+                        Status Publikasi
+                    </label>
+                    <select
+                        wire:model.live="status"
+                        class="w-full h-9 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-colors cursor-pointer font-medium"
+                    >
+                        <option value="Publik">Publik</option>
+                        <option value="Draf">Draf</option>
+                        <option value="Disembunyikan">Disembunyikan</option>
+                    </select>
+                    <p class="text-[11px] text-slate-500 mt-1">Status menentukan visibilitas e-book pada katalog publik.</p>
+                </div>
+
+                {{-- Ebook Mingguan Checkbox --}}
+                <div class="pt-3 border-t border-slate-100">
+                    <label class="flex items-start gap-2.5 cursor-pointer group">
+                        <input
+                            type="checkbox"
+                            wire:model="is_mingguan"
+                            class="mt-0.5 w-4 h-4 rounded text-[#0284c7] border-slate-300 focus:ring-[#0284c7] cursor-pointer"
+                        />
+                        <div class="text-xs">
+                            <span class="font-semibold text-slate-900 group-hover:text-[#0284c7] transition-colors flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-amber-500 fill-current" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                E-Book Rekomendasi Mingguan
+                            </span>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Pajang sebagai e-book utama di bagian Hero Beranda publik.</p>
+                        </div>
+                    </label>
+                </div>
             </div>
 
             {{-- Dokumen PDF Card --}}
