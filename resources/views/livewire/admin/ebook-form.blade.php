@@ -92,12 +92,12 @@
     </style>
 
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 class="text-sm font-semibold text-[#0F172A]">
                 {{ $mode === 'add' ? 'Tambah E-Book' : 'Edit E-Book' }}
             </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Lengkapi informasi materi publikasi e-book dan modul literasi keamanan.</p>
+            <p class="text-xs text-[#64748B] mt-0.5">Lengkapi informasi materi publikasi e-book dan modul literasi keamanan.</p>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <a 

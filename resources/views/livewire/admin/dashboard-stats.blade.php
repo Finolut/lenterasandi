@@ -220,12 +220,13 @@
                         @foreach($recentEbooks as $ebook)
                             @php
                                 $cover = $ebook->cover_image ?? null;
+                                $initials = strtoupper(substr($ebook->judul ?? 'E', 0, 2));
                             @endphp
                             <tr class="hover:bg-slate-50/60 transition-colors">
                                 <td class="py-3 px-5">
                                     <div class="flex items-center gap-3">
-                                        {{-- Cover thumbnail --}}
-                                        <div class="w-8 h-11 rounded bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                        {{-- Cover thumbnail: show image or initials placeholder --}}
+                                        <div class="w-8 h-11 rounded bg-[#083575]/10 border border-[#083575]/20 overflow-hidden shrink-0 flex items-center justify-center text-[10px] font-bold text-[#083575]">
                                             @if($cover)
                                                 <img
                                                     src="{{ $cover }}"
@@ -235,9 +236,7 @@
                                                     decoding="async"
                                                 >
                                             @else
-                                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                                </svg>
+                                                {{ $initials }}
                                             @endif
                                         </div>
                                         <div class="min-w-0">
@@ -282,6 +281,138 @@
                                         target="_blank"
                                         class="p-1 rounded text-slate-500 hover:text-[#0284c7] hover:bg-slate-100 transition-colors inline-flex"
                                         title="Lihat Detail"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+
+    {{-- 5. Artikel Terbaru --}}
+    <div class="bg-white rounded-xl border border-slate-200/80 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h2 class="text-sm font-bold text-slate-900">Artikel Terbaru</h2>
+                <p class="text-xs text-slate-500 mt-0.5">5 artikel yang baru dipublikasikan</p>
+            </div>
+            <a
+                href="{{ route('admin.informasi.index') }}"
+                wire:navigate
+                class="text-xs font-semibold text-[#0284c7] hover:text-[#0369a1] hover:underline flex items-center gap-1"
+            >
+                <span>Lihat Semua Artikel ({{ $totalInformasi }})</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+
+        @if($recentArticles->isEmpty())
+            <div class="py-10 px-6 flex flex-col items-center justify-center text-center">
+                <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                    </svg>
+                </div>
+                <p class="text-sm font-semibold text-slate-900">Belum ada artikel</p>
+                <p class="text-xs text-slate-500 mt-0.5 mb-3">Tulis publikasi kegiatan dan edukasi persandian pertama.</p>
+                <a
+                    href="{{ route('admin.informasi.create') }}"
+                    wire:navigate
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#0284c7] hover:bg-[#0369a1] transition-colors"
+                >
+                    + Tulis Artikel
+                </a>
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="bg-slate-50/75 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                            <th class="py-3 px-5">Artikel</th>
+                            <th class="py-3 px-4 hidden sm:table-cell">Kategori</th>
+                            <th class="py-3 px-4 hidden md:table-cell">Tanggal</th>
+                            <th class="py-3 px-4">Status</th>
+                            <th class="py-3 px-5 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach($recentArticles as $art)
+                            @php
+                                $gambar = $art->gambar ?? null;
+                                $artInitials = strtoupper(substr($art->judul ?? 'A', 0, 2));
+                            @endphp
+                            <tr class="hover:bg-slate-50/60 transition-colors">
+                                <td class="py-3 px-5">
+                                    <div class="flex items-center gap-3">
+                                        {{-- Thumbnail 16:9 --}}
+                                        <div class="w-14 h-9 rounded bg-indigo-50 border border-indigo-100 overflow-hidden shrink-0 flex items-center justify-center text-[10px] font-bold text-indigo-400">
+                                            @if($gambar)
+                                                <img
+                                                    src="{{ $gambar }}"
+                                                    alt="{{ $art->judul }}"
+                                                    class="w-full h-full object-cover"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    fetchpriority="low"
+                                                >
+                                            @else
+                                                {{ $artInitials }}
+                                            @endif
+                                        </div>
+                                        <div class="min-w-0">
+                                            <a
+                                                href="{{ route('admin.informasi.edit', $art->id) }}"
+                                                wire:navigate
+                                                class="font-semibold text-slate-900 hover:text-[#0284c7] transition-colors line-clamp-1 block"
+                                                title="{{ $art->judul }}"
+                                            >
+                                                {{ $art->judul }}
+                                            </a>
+                                            <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                                <span>{{ $art->creator->name ?? 'Redaksi' }}</span>
+                                                <span class="sm:hidden">&bull; {{ $art->tanggal_publish ?? '—' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 hidden sm:table-cell">
+                                    @foreach($art->kategori_list as $kat)
+                                        <span class="inline-block px-2 py-0.5 rounded text-[11px] font-medium border border-slate-200/80 text-slate-700 bg-slate-50 mr-1">
+                                            {{ $kat }}
+                                        </span>
+                                    @endforeach
+                                </td>
+                                <td class="py-3 px-4 hidden md:table-cell text-slate-600">
+                                    {{ $art->tanggal_publish ?? '—' }}
+                                </td>
+                                <td class="py-3 px-4">
+                                    @if($art->status === 'Publik')
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            Publik
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                            Draf
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-5 text-right">
+                                    <a
+                                        href="{{ route('informasi.show', $art->id) }}"
+                                        target="_blank"
+                                        class="p-1 rounded text-slate-500 hover:text-[#0284c7] hover:bg-slate-100 transition-colors inline-flex"
+                                        title="Lihat Portal Publik"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>

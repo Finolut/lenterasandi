@@ -1,85 +1,58 @@
-<div>
-    {{-- Header & Actions --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+<div class="space-y-5">
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <div class="flex items-center gap-2.5">
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Pesan Masuk &amp; Permohonan Akses</h1>
-                @if($totalUnread > 0)
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200/70">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                        {{ $totalUnread }} Belum Dibaca
-                    </span>
-                @endif
-            </div>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">Daftar permohonan akses berkas pendukung artikel dari pengunjung portal.</p>
+            <h2 class="text-base font-semibold text-[#0F172A]">Pesan Masuk & Permohonan Akses</h2>
+            <p class="text-xs text-[#64748B] mt-0.5">Daftar permohonan akses berkas pendukung artikel dari pengunjung portal.</p>
         </div>
-
         @if($totalUnread > 0)
-            <button
-                type="button"
-                wire:click="markAllAsRead"
-                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-white border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-700 shadow-2xs transition-colors cursor-pointer shrink-0"
-            >
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" wire:click="markAllAsRead"
+                    class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-xs font-medium text-[#334155] transition-colors shrink-0">
+                <svg class="w-3.5 h-3.5 text-[#64748B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
-                <span>Tandai Semua Dibaca</span>
+                Tandai Semua Dibaca
             </button>
         @endif
     </div>
 
-    {{-- Session Flash Message --}}
+    {{-- Flash --}}
     @if(session()->has('success'))
-        <div class="mb-5 rounded-lg bg-emerald-50 border border-emerald-200/80 px-4 py-2.5 text-xs text-emerald-800 flex items-center justify-between">
-            <div class="flex items-center gap-2 font-medium">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span>{{ session('success') }}</span>
-            </div>
+        <div class="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-emerald-50 border border-emerald-200/80 text-xs text-emerald-800">
+            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span class="font-medium">{{ session('success') }}</span>
         </div>
     @endif
 
-    {{-- Cohesive Single Container: Search Toolbar, Status Filter & Table --}}
-    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
-        {{-- Integrated Filter Toolbar --}}
-        <div class="p-3.5 sm:p-4 border-b border-slate-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-            {{-- Search Bar --}}
+    {{-- Table Card --}}
+    <div class="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+        {{-- Toolbar --}}
+        <div class="px-4 py-3 border-b border-[#E2E8F0] flex flex-col md:flex-row gap-2">
             <div class="relative flex-1 max-w-md">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-3.5 h-3.5 text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </div>
-                <input
-                    wire:model.live.debounce.300ms="search"
-                    type="search"
-                    placeholder="Cari nama pemohon, instansi, atau dokumen..."
-                    class="w-full pl-9 pr-3 h-9 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-900 placeholder:text-slate-400 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-colors"
-                />
+                <input wire:model.live.debounce.300ms="search" type="search"
+                       placeholder="Cari nama pemohon, instansi, atau dokumen..."
+                       class="w-full h-8 pl-8 pr-3 rounded-md border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] outline-none transition-colors" />
             </div>
-
-            {{-- Status Filter & Reset Action --}}
-            <div class="flex items-center gap-2 shrink-0">
-                <select
-                    wire:model.live="selectedStatus"
-                    class="h-9 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-700 focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] outline-none transition-colors cursor-pointer font-medium"
-                >
+            <div class="flex items-center gap-2">
+                <select wire:model.live="selectedStatus"
+                        class="h-8 pl-3 pr-7 rounded-md border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#334155] focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] outline-none cursor-pointer transition-colors">
                     <option value="Semua">Semua Status ({{ $totalAll }})</option>
                     <option value="Belum Dibaca">Belum Dibaca ({{ $totalUnread }})</option>
                     <option value="Menunggu">Menunggu Verifikasi ({{ $totalPending }})</option>
                     <option value="Disetujui">Disetujui ({{ $totalApproved }})</option>
                     <option value="Ditolak">Ditolak</option>
                 </select>
-
                 @if($search !== '' || $selectedStatus !== 'Semua')
-                    <button
-                        type="button"
-                        wire:click="$set('search', ''); $set('selectedStatus', 'Semua');"
-                        class="h-9 px-3 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-600 transition-colors cursor-pointer"
-                        title="Reset filter"
-                    >
-                        Reset Filter
+                    <button type="button" wire:click="$set('search', ''); $set('selectedStatus', 'Semua');"
+                            class="h-8 px-2.5 rounded-md border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#64748B] hover:text-[#0284C7] hover:border-[#0284C7] transition-colors">
+                        Reset
                     </button>
                 @endif
             </div>

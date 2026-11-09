@@ -43,15 +43,15 @@
     </style>
 
     {{-- Header --}}
-    <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-200">
+    <div class="flex items-center justify-between pb-4 mb-6 border-b border-[#E2E8F0]">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 class="text-sm font-semibold text-[#0F172A]">
                 {{ $mode === 'add' ? 'Tambah Artikel' : 'Edit Artikel' }}
             </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Tulis siaran pers, agenda kegiatan, atau artikel edukasi keamanan siber.</p>
+            <p class="text-xs text-[#64748B] mt-0.5">Tulis siaran pers, agenda kegiatan, atau artikel edukasi keamanan siber.</p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('admin.informasi.index') }}" wire:navigate.hover class="px-3.5 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">
+            <a href="{{ route('admin.informasi.index') }}" wire:navigate.hover class="h-9 px-3.5 rounded-md border border-[#E2E8F0] bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 transition-colors cursor-pointer inline-flex items-center">
                 Kembali
             </a>
             <button
@@ -59,7 +59,7 @@
                 wire:loading.attr="disabled"
                 wire:target="save"
                 type="button"
-                class="px-4 py-2 rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                class="h-9 px-4 rounded-md bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-medium shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
                 <span wire:loading.remove wire:target="save">{{ $mode === 'add' ? 'Simpan Artikel' : 'Perbarui Artikel' }}</span>
                 <span wire:loading wire:target="save">Menyimpan...</span>

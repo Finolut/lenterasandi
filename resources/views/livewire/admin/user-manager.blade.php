@@ -48,16 +48,16 @@
     @endif
 
     {{-- Top Action Bar --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Kelola Administrator</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">{{ $users->total() }} akun administrator terdaftar dengan hak akses sistem</p>
+            <h2 class="text-sm font-semibold text-[#0F172A]">Kelola Administrator</h2>
+            <p class="text-xs text-[#64748B] mt-0.5">{{ $users->total() }} akun administrator terdaftar dengan hak akses sistem</p>
         </div>
 
         <button
             @click="openCreateModal()"
             type="button"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs sm:text-sm text-white bg-[#0284c7] hover:bg-[#0369a1] shadow-xs transition-colors cursor-pointer shrink-0"
+            class="inline-flex items-center gap-2 h-9 px-4 rounded-md font-medium text-xs text-white bg-[#0284C7] hover:bg-[#0369A1] shadow-2xs transition-colors cursor-pointer shrink-0"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
@@ -66,35 +66,34 @@
         </button>
     </div>
 
-    {{-- Search Filter Bar --}}
-    <div class="bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs">
-        <div class="relative w-full sm:max-w-md">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-            </div>
-            <input
-                wire:model.live.debounce.300ms="search"
-                type="search"
-                placeholder="Cari nama admin atau email..."
-                class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-[#0284c7] focus:ring-1 focus:ring-[#0284c7] transition-all placeholder:text-slate-400"
-            />
-        </div>
-    </div>
-
     {{-- Admin Table Card --}}
-    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <div class="bg-white rounded-xl border border-[#E2E8F0] shadow-xs overflow-hidden">
+        {{-- Toolbar --}}
+        <div class="px-4 py-2.5 border-b border-[#E2E8F0] bg-[#F8FAFC] flex items-center gap-2">
+            <div class="relative flex-1 max-w-xs">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-3.5 h-3.5 text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <input
+                    wire:model.live.debounce.300ms="search"
+                    type="search"
+                    placeholder="Cari nama admin atau email..."
+                    class="w-full h-8 pl-9 pr-3 rounded-md border border-[#E2E8F0] bg-white text-xs text-[#0F172A] focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] transition-all placeholder:text-[#94A3B8]"
+                />
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
                 <thead>
-                    <tr class="bg-slate-50/75 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    <tr class="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">
                         <th class="py-3 px-5">Administrator</th>
                         <th class="py-3 px-4">Terdaftar Sejak</th>
                         <th class="py-3 px-5 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-[#F1F5F9]">
                     @forelse($users as $user)
                         @php
                             $isCurrentUser = ($user->id === auth()->id());
@@ -179,7 +178,7 @@
 
         {{-- Pagination --}}
         @if($users->hasPages())
-            <div class="px-5 py-3.5 border-t border-slate-200/80 bg-slate-50/75">
+            <div class="px-5 py-3 border-t border-[#E2E8F0] bg-[#F8FAFC]">
                 {{ $users->links() }}
             </div>
         @endif
