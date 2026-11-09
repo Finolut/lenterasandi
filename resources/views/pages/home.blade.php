@@ -1,26 +1,17 @@
 @php
     use App\Models\Ebook;
     use App\Models\Informasi;
-    use Illuminate\Support\Facades\Cache;
     use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Str;
     
-    $totalEbooks = Cache::remember('home_total_ebooks', 60, function () {
-        return Ebook::where('status', 'Publik')->count();
-    });
-
-    $heroEbook = Cache::remember('home_hero_ebook', now()->addMinutes(10), function () {
-        return Ebook::where('status', 'Publik')
-            ->latest()
-            ->first();
-    });
-
-    $featuredEbooks = Cache::remember('home_featured_ebooks', now()->addMinutes(10), fn () => Ebook::where('status', 'Publik')
+    $totalEbooks = Ebook::where('status', 'Publik')->count();
+    $heroEbook = Ebook::where('status', 'Publik')->latest()->first();
+    $featuredEbooks = Ebook::where('status', 'Publik')
         ->select(['id', 'judul', 'kategori', 'file_url', 'cover_url', 'jumlah_dibaca', 'created_at'])
-        ->latest()->take(6)->get());
-    $recentNews = Cache::remember('home_recent_news', now()->addMinutes(10), fn () => Informasi::where('status', 'Publik')
+        ->latest()->take(6)->get();
+    $recentNews = Informasi::where('status', 'Publik')
         ->select(['id', 'judul', 'ringkasan', 'gambar_url', 'kategori', 'published_at'])
-        ->latest('published_at')->take(8)->get());
+        ->latest('published_at')->take(8)->get();
 @endphp
 <x-layouts.app active="Beranda">
     {{-- HERO SECTION: Featured E-Book 2-Kolom --}}
