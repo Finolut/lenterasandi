@@ -74,7 +74,13 @@ class DashboardStats extends Component
         // Recent items with lightweight selected columns (termasuk cover/thumbnail)
         $stats['recentEbooks']   = Ebook::with('creator:id,name')->select(['id', 'judul', 'kategori', 'status', 'cover_url', 'file_url', 'created_by', 'created_at', 'jumlah_dibaca', 'jumlah_unduhan'])->latest()->limit(5)->get();
         $stats['recentArticles'] = Informasi::with('creator:id,name')->select(['id', 'judul', 'kategori', 'status', 'gambar_url', 'created_by', 'published_at', 'jumlah_dilihat'])->latest('published_at')->limit(5)->get();
-        $stats['recentMessages'] = \App\Models\PermohonanAkses::with('informasi:id,judul')->select(['id', 'informasi_id', 'nama_lengkap', 'instansi', 'status', 'dibaca_at', 'created_at'])->latest()->limit(5)->get();
+        // Prioritize Pending first, then by latest created_at
+        $stats['recentMessages'] = \App\Models\PermohonanAkses::with('informasi:id,judul')
+            ->select(['id', 'informasi_id', 'nama_lengkap', 'instansi', 'status', 'dibaca_at', 'created_at'])
+            ->orderByRaw("CASE WHEN status = 'Pending' THEN 0 ELSE 1 END")
+            ->latest()
+            ->limit(5)
+            ->get();
 
         return view('livewire.admin.dashboard-stats', $stats);
     }
