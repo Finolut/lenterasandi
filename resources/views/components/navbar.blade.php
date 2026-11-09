@@ -25,46 +25,45 @@ $navItems = [
         'url' => $isHome ? '#artikel' : route('home') . '#artikel',
         'is_active' => ($active === 'Artikel' || $active === 'Informasi' || request()->routeIs('informasi.*')),
     ],
-    [
-        'id' => 'csirt',
-        'label' => 'CSIRT Jatim',
-        'url' => 'https://csirt.jatimprov.go.id',
-        'target' => '_blank',
-        'is_active' => false,
-    ],
 ];
 @endphp
 
-{{-- Full-Width Solid Navbar (OAPEN-Style Template) --}}
+{{-- Full-Width Admin Navy Navbar dengan Smooth Shrink saat Scroll --}}
 <header
     x-data="{ mobileMenu: false, isScrolled: false }"
-    x-init="isScrolled = window.pageYOffset > 10"
-    @scroll.window.passive="isScrolled = window.pageYOffset > 10"
-    class="fixed top-0 left-0 w-full z-50 bg-[#0b3d2e] text-white transition-all duration-200"
-    :class="isScrolled ? 'shadow-md border-b border-[#082e23]' : 'border-b border-[#124938]'"
+    x-init="isScrolled = window.pageYOffset > 20"
+    @scroll.window.passive="isScrolled = window.pageYOffset > 20"
+    class="fixed top-0 left-0 w-full z-50 text-white transition-all duration-300 ease-in-out"
+    :class="isScrolled
+        ? 'bg-[#062859]/95 backdrop-blur-md shadow-lg shadow-black/15 border-b border-[#0b489a] py-2 md:py-2.5'
+        : 'bg-[#083575] border-b border-[#0b489a]/70 py-3.5 md:py-4'"
 >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 md:h-18">
+        <div class="flex items-center justify-between transition-all duration-300 ease-in-out">
             
-            {{-- Sisi Kiri: Logo Identitas (Crisp White Treatment) --}}
+            {{-- Sisi Kiri: Logo Identitas (Menyusut Halus saat Scroll) --}}
             <div class="flex items-center shrink-0">
                 <a href="{{ $isHome ? '#beranda' : route('home') }}" {{ !$isHome ? 'wire:navigate' : '' }} class="flex items-center gap-2 group select-none transition-opacity duration-150 hover:opacity-90">
-                    <img src="{{ asset('assets/images/logo2.png') }}" alt="Lentera Sandi" class="h-9 sm:h-10 md:h-11 w-auto object-contain brightness-0 invert">
+                    <img
+                        src="{{ asset('assets/images/logo2.png') }}"
+                        alt="Lentera Sandi"
+                        class="w-auto object-contain brightness-0 invert transition-all duration-300 ease-in-out"
+                        :class="isScrolled ? 'h-8 sm:h-8.5 md:h-9' : 'h-9 sm:h-10 md:h-11'"
+                    >
                 </a>
             </div>
 
             @if(!$showAdmin)
-                {{-- Sisi Kanan: Menu Navigasi & Action Button (Desktop) --}}
-                <div class="hidden lg:flex items-center gap-6 xl:gap-8 ml-auto">
+                {{-- Sisi Kanan: Menu Navigasi & Theme Toggle (Desktop) --}}
+                <div class="hidden lg:flex items-center gap-7 xl:gap-9 ml-auto">
                     {{-- Nav Links --}}
                     <nav class="flex items-center gap-6 xl:gap-8">
                         @foreach($navItems as $item)
                             <a
                                 href="{{ $item['url'] }}"
                                 data-nav-id="{{ $item['id'] }}"
-                                @if(!empty($item['target'])) target="{{ $item['target'] }}" rel="noopener noreferrer" @endif
-                                {{ (!empty($item['target']) || str_starts_with($item['url'], '#')) ? '' : 'wire:navigate.hover' }}
-                                class="nav-link-item text-[13px] xl:text-sm font-semibold tracking-wide transition-colors duration-150 py-1 inline-flex items-center gap-1.5 {{ $item['is_active'] ? 'text-emerald-300 font-bold active-link' : 'text-white hover:text-emerald-200' }}"
+                                {{ str_starts_with($item['url'], '#') ? '' : 'wire:navigate.hover' }}
+                                class="nav-link-item group relative text-[13px] xl:text-sm font-semibold tracking-wide transition-colors duration-200 py-1 inline-flex items-center gap-1.5 {{ $item['is_active'] ? 'text-cyan-300 font-bold active-link' : 'text-sky-100/90 hover:text-white' }}"
                             >
                                 <span>{{ $item['label'] }}</span>
                                 @if(!empty($item['badge']))
@@ -72,37 +71,18 @@ $navItems = [
                                         {{ $item['badge'] }}
                                     </span>
                                 @endif
+                                {{-- Cyan indicator line --}}
+                                <span class="nav-indicator absolute -bottom-1 left-0 right-0 h-[2px] bg-cyan-400 rounded-full transition-all duration-300 ease-out origin-center {{ $item['is_active'] ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0 group-hover:scale-x-75 group-hover:opacity-40' }}"></span>
                             </a>
                         @endforeach
                     </nav>
 
-                    {{-- Action Button: Outlined Box Button (seperti tombol 'Newsletter' pada template) --}}
-                    <div class="flex items-center gap-3 pl-2 border-l border-white/20">
-                        @auth
-                            <a
-                                href="{{ route('admin.dashboard') }}"
-                                wire:navigate
-                                class="border border-white text-white hover:bg-white hover:text-[#0b3d2e] px-4 py-1.5 text-xs font-semibold tracking-wider uppercase transition-all duration-150 rounded-xs select-none shadow-2xs"
-                                title="Masuk ke Panel Administrasi"
-                            >
-                                Dashboard
-                            </a>
-                        @else
-                            <a
-                                href="{{ route('login') }}"
-                                wire:navigate
-                                class="border border-white text-white hover:bg-white hover:text-[#0b3d2e] px-4 py-1.5 text-xs font-semibold tracking-wider uppercase transition-all duration-150 rounded-xs select-none shadow-2xs"
-                                title="Login ke Sistem Administrasi"
-                            >
-                                Akses Admin
-                            </a>
-                        @endauth
-
-                        {{-- Dark/Light Mode Minimalist Toggle --}}
+                    {{-- Dark/Light Mode Minimalist Toggle --}}
+                    <div class="flex items-center pl-2 border-l border-white/15">
                         <button
                             type="button"
                             onclick="window.toggleTheme()"
-                            class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer"
+                            class="p-2 text-sky-100/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                             aria-label="Ganti mode terang/gelap"
                             title="Ganti Mode Terang / Gelap"
                         >
@@ -119,11 +99,11 @@ $navItems = [
                 </div>
 
                 {{-- Sisi Kanan: Mobile Action & Hamburger --}}
-                <div class="flex lg:hidden items-center gap-2">
+                <div class="flex lg:hidden items-center gap-1.5">
                     <button
                         type="button"
                         onclick="window.toggleTheme()"
-                        class="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+                        class="p-2 text-sky-100/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
                         aria-label="Ganti mode terang/gelap"
                     >
                         <svg class="w-4 h-4 hidden dark:block text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -137,7 +117,7 @@ $navItems = [
                     <button
                         @click="mobileMenu = !mobileMenu"
                         type="button"
-                        class="p-2 text-white hover:bg-white/10 rounded-md transition-colors focus:outline-none"
+                        class="p-2 text-sky-100 hover:text-white hover:bg-white/10 rounded-md transition-colors focus:outline-none"
                         aria-label="Toggle menu"
                     >
                         <svg class="w-6 h-6 transition-transform duration-200" :class="mobileMenu ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,10 +125,6 @@ $navItems = [
                             <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" style="display: none;"></path>
                         </svg>
                     </button>
-                </div>
-            @else
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-mono text-emerald-200">Mode Wireframe</span>
                 </div>
             @endif
         </div>
@@ -164,17 +140,16 @@ $navItems = [
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100 translate-y-0"
             x-transition:leave-end="opacity-0 -translate-y-2"
-            class="lg:hidden bg-[#082e23] border-t border-[#124938] px-4 py-4 flex flex-col gap-2"
+            class="lg:hidden bg-[#062859] border-t border-[#0b489a] px-4 py-3 flex flex-col gap-1 shadow-xl"
             style="display: none;"
         >
             @foreach($navItems as $item)
                 <a
                     href="{{ $item['url'] }}"
                     data-mobile-nav-id="{{ $item['id'] }}"
-                    @if(!empty($item['target'])) target="{{ $item['target'] }}" rel="noopener noreferrer" @endif
-                    {{ (!empty($item['target']) || str_starts_with($item['url'], '#')) ? '' : 'wire:navigate' }}
+                    {{ str_starts_with($item['url'], '#') ? '' : 'wire:navigate' }}
                     @click="mobileMenu = false"
-                    class="mobile-nav-link-item px-3 py-2 rounded text-sm font-semibold tracking-wide transition-colors {{ $item['is_active'] ? 'bg-white/15 text-emerald-300 font-bold active-link' : 'text-white/90 hover:bg-white/10 hover:text-white' }}"
+                    class="mobile-nav-link-item px-3.5 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-colors {{ $item['is_active'] ? 'bg-[#0e438c] text-cyan-300 font-bold active-link' : 'text-sky-100 hover:bg-white/10 hover:text-white' }}"
                 >
                     <span>{{ $item['label'] }}</span>
                     @if(!empty($item['badge']))
@@ -184,28 +159,6 @@ $navItems = [
                     @endif
                 </a>
             @endforeach
-
-            <div class="pt-3 mt-2 border-t border-white/15 flex flex-col">
-                @auth
-                    <a
-                        href="{{ route('admin.dashboard') }}"
-                        wire:navigate
-                        @click="mobileMenu = false"
-                        class="text-center border border-white text-white hover:bg-white hover:text-[#0b3d2e] px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors rounded-xs"
-                    >
-                        Dashboard Admin
-                    </a>
-                @else
-                    <a
-                        href="{{ route('login') }}"
-                        wire:navigate
-                        @click="mobileMenu = false"
-                        class="text-center border border-white text-white hover:bg-white hover:text-[#0b3d2e] px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors rounded-xs"
-                    >
-                        Akses Admin
-                    </a>
-                @endauth
-            </div>
         </div>
     @endif
 </header>
@@ -229,7 +182,7 @@ $navItems = [
         if (!targetEl) return;
         cancelGlide();
 
-        const headerOffset = 70;
+        const headerOffset = 64;
         const startY = window.pageYOffset || document.documentElement.scrollTop;
         const targetY = Math.max(0, targetEl.getBoundingClientRect().top + startY - headerOffset);
         const distance = targetY - startY;
@@ -273,23 +226,32 @@ $navItems = [
 
         desktopLinks.forEach(link => {
             const id = link.getAttribute('data-nav-id');
+            const indicator = link.querySelector('.nav-indicator');
             if (id === activeId) {
-                link.classList.remove('text-white', 'hover:text-emerald-200');
-                link.classList.add('text-emerald-300', 'font-bold', 'active-link');
+                link.classList.remove('text-sky-100/90');
+                link.classList.add('text-cyan-300', 'font-bold', 'active-link');
+                if (indicator) {
+                    indicator.classList.remove('scale-x-0', 'opacity-0');
+                    indicator.classList.add('scale-x-100', 'opacity-100');
+                }
             } else if (id && sectionIds.includes(id)) {
-                link.classList.remove('text-emerald-300', 'font-bold', 'active-link');
-                link.classList.add('text-white', 'hover:text-emerald-200');
+                link.classList.remove('text-cyan-300', 'font-bold', 'active-link');
+                link.classList.add('text-sky-100/90');
+                if (indicator) {
+                    indicator.classList.remove('scale-x-100', 'opacity-100');
+                    indicator.classList.add('scale-x-0', 'opacity-0');
+                }
             }
         });
 
         mobileLinks.forEach(link => {
             const id = link.getAttribute('data-mobile-nav-id');
             if (id === activeId) {
-                link.classList.remove('text-white/90', 'hover:bg-white/10');
-                link.classList.add('bg-white/15', 'text-emerald-300', 'font-bold', 'active-link');
+                link.classList.remove('text-sky-100', 'hover:bg-white/10');
+                link.classList.add('bg-[#0e438c]', 'text-cyan-300', 'font-bold', 'active-link');
             } else if (id && sectionIds.includes(id)) {
-                link.classList.remove('bg-white/15', 'text-emerald-300', 'font-bold', 'active-link');
-                link.classList.add('text-white/90', 'hover:bg-white/10');
+                link.classList.remove('bg-[#0e438c]', 'text-cyan-300', 'font-bold', 'active-link');
+                link.classList.add('text-sky-100', 'hover:bg-white/10');
             }
         });
     }
