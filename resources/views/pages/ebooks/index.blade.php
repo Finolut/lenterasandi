@@ -7,47 +7,16 @@
     {{-- Subtle Silent Top Loading Indicator (No Text) --}}
     <div wire:loading class="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 animate-pulse" style="z-index: 10000;"></div>
 
-    {{-- Top Sticky Header (Solid White / Dark, High z-index) --}}
-    <header
-        class="border-b border-[#e2e8f0] dark:border-slate-800 shadow-xs bg-white dark:bg-[#0f172a] transition-colors duration-200"
-        style="position: sticky; top: 0; z-index: 9999; isolation: isolate;"
-    >
+    {{-- Category Tabs Sub-Navigation Bar --}}
+    <div class="sticky top-14 sm:top-16 z-30 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-slate-800 shadow-2xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Top Row: Brand Logo & Navigation Actions --}}
-            <div class="flex items-center justify-between h-14">
-                <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2 select-none group">
-                    <img src="{{ asset('assets/images/logo2.png') }}" alt="Lentera Sandi" class="h-10 sm:h-11 w-auto object-contain group-hover:opacity-90 transition-opacity">
-                </a>
-
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('home') }}" wire:navigate class="text-xs sm:text-sm font-semibold text-[#0f3b7a] dark:text-sky-300 hover:text-[#0284c7] transition-colors">
-                        Beranda
-                    </a>
-                    <button
-                        type="button"
-                        onclick="window.toggleTheme()"
-                        class="p-2 rounded-xl border border-[#e2e8f0] dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-amber-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-                        aria-label="Ganti mode terang/gelap"
-                        title="Ganti Mode Terang / Gelap"
-                    >
-                        <svg class="w-4 h-4 hidden dark:block text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <svg class="w-4 h-4 block dark:hidden text-[#475467]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            {{-- Navigation Tabs Row (Route View All per Kategori) --}}
-            <nav class="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar border-t border-[#f1f5f9] dark:border-slate-800 -mb-px">
+            <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-2 sm:py-2.5">
                 <a
                     href="{{ route('ebooks.index') }}"
                     wire:navigate
-                    class="py-2.5 px-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 cursor-pointer {{ $selectedCategory === 'Semua' ? 'border-[#0284c7] text-[#0284c7] dark:text-sky-400 font-bold' : 'border-transparent text-[#64748b] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200 hover:border-[#cbd5e1] dark:hover:border-slate-700' }}"
+                    class="py-1.5 px-3.5 text-xs sm:text-sm font-semibold rounded-lg whitespace-nowrap transition-all duration-150 cursor-pointer {{ $selectedCategory === 'Semua' ? 'bg-[#083575] text-white shadow-2xs' : 'text-[#64748b] dark:text-slate-400 hover:text-[#083575] dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800' }}"
                 >
-                    All
+                    Semua Kategori
                 </a>
 
                 @foreach($navCategories as $cat)
@@ -58,17 +27,17 @@
                     <a
                         href="{{ route('ebooks.category', $catSlug) }}"
                         wire:navigate
-                        class="py-2.5 px-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 cursor-pointer {{ $isActive ? 'border-[#0284c7] text-[#0284c7] dark:text-sky-400 font-bold' : 'border-transparent text-[#64748b] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200 hover:border-[#cbd5e1] dark:hover:border-slate-700' }}"
+                        class="py-1.5 px-3.5 text-xs sm:text-sm font-semibold rounded-lg whitespace-nowrap transition-all duration-150 cursor-pointer {{ $isActive ? 'bg-[#083575] text-white shadow-2xs' : 'text-[#64748b] dark:text-slate-400 hover:text-[#083575] dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800' }}"
                     >
                         {{ $cat }}
                     </a>
                 @endforeach
             </nav>
         </div>
-    </header>
+    </div>
 
     {{-- Main Content Area --}}
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div>
             {{-- Toolbar: Status/Kategori & Sortir (Hanya tampilkan label kategori jika bukan 'Semua') --}}
             <div class="flex items-center justify-between mb-6 pb-3 border-b border-[#e2e8f0] dark:border-slate-800">
@@ -187,5 +156,5 @@
                 </div>
             @endif
         </div>
-    </main>
+    </div>
 </div>

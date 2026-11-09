@@ -10,7 +10,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app', ['active' => 'Koleksi E-Book', 'title' => 'Koleksi E-Book - Lentera Sandi', 'hideNavbar' => true])]
+#[Layout('components.layouts.app', ['active' => 'Koleksi E-Book', 'title' => 'Koleksi E-Book - Lentera Sandi'])]
 class EbookCollection extends Component
 {
     use WithPagination;

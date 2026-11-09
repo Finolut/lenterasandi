@@ -8,7 +8,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app', ['active' => 'Informasi', 'title' => 'Informasi & Berita - Lentera Sandi', 'hideNavbar' => true])]
+#[Layout('components.layouts.app', ['active' => 'Artikel', 'title' => 'Informasi & Berita - Lentera Sandi'])]
 class InformationList extends Component
 {
     use WithPagination;

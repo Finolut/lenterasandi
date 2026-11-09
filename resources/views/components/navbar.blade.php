@@ -10,19 +10,19 @@ $navItems = [
     [
         'id' => 'beranda',
         'label' => 'Beranda',
-        'url' => $isHome ? '#beranda' : route('home') . '#beranda',
+        'url' => $isHome ? '#beranda' : route('home'),
         'is_active' => ($active === 'Beranda' || ($isHome && empty($active))),
     ],
     [
         'id' => 'ebook',
         'label' => 'Koleksi E-Book',
-        'url' => $isHome ? '#ebook' : route('home') . '#ebook',
+        'url' => $isHome ? '#ebook' : route('ebooks.index'),
         'is_active' => ($active === 'E-Book' || $active === 'Koleksi E-Book' || request()->routeIs('ebooks.*')),
     ],
     [
         'id' => 'artikel',
         'label' => 'Artikel & Berita',
-        'url' => $isHome ? '#artikel' : route('home') . '#artikel',
+        'url' => $isHome ? '#artikel' : route('informasi.index'),
         'is_active' => ($active === 'Artikel' || $active === 'Informasi' || request()->routeIs('informasi.*')),
     ],
 ];
