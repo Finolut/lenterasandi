@@ -1,17 +1,14 @@
 @php
+    $id = request()->route('id') ?? $id;
     $informasi = \App\Models\Informasi::where('status', 'Publik')->findOrFail($id);
     
-    // Cegah auto-increment jika request berupa prefetch atau sudah dibuka pada sesi ini
+    // Cegah increment jika request berupa prefetch otomatis dari browser
     $isPrefetch = request()->header('Purpose') === 'prefetch' 
         || request()->header('Sec-Purpose') === 'prefetch'
         || request()->hasHeader('X-Livewire-Prefetch');
 
     if (!$isPrefetch) {
-        $viewedKey = 'viewed_informasi_' . $informasi->id;
-        if (!session()->has($viewedKey)) {
-            $informasi->increment('jumlah_dilihat');
-            session()->put($viewedKey, true);
-        }
+        $informasi->increment('jumlah_dilihat');
     }
 
     // Calculate reading time estimate
