@@ -85,7 +85,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-slate-50/75 border-b border-slate-100 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    <tr class="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">
                         <th class="px-4 py-3 w-10 text-center">
                             <input
                                 type="checkbox"
@@ -100,7 +100,7 @@
                         <th class="px-4 py-3 text-right whitespace-nowrap min-w-[100px]">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-[#F1F5F9]">
                     @forelse($messages as $msg)
                         <tr class="hover:bg-slate-50/70 transition-colors {{ $msg->dibaca_at === null ? 'bg-sky-50/20' : '' }}">
                             {{-- Checkbox --}}

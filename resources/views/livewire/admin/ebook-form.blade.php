@@ -103,7 +103,7 @@
             <a 
                 href="{{ route('admin.ebooks.index') }}" 
                 wire:navigate.hover 
-                class="h-9 px-3.5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 shadow-2xs transition-colors cursor-pointer inline-flex items-center"
+                class="h-9 px-3.5 rounded-md border border-[#E2E8F0] bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 shadow-2xs transition-colors cursor-pointer inline-flex items-center"
             >
                 Kembali
             </a>

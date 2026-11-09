@@ -3,13 +3,13 @@
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-lg font-bold text-slate-900 tracking-tight">E-Book Mingguan</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Tentukan satu e-book yang ditampilkan pada bagian utama Beranda publik.</p>
+            <h1 class="text-sm font-semibold text-[#0F172A]">E-Book Mingguan</h1>
+            <p class="text-xs text-[#64748B] mt-0.5">Tentukan satu e-book yang ditampilkan pada bagian utama Beranda publik.</p>
         </div>
         <a
             href="{{ route('home') }}"
             target="_blank"
-            class="inline-flex items-center gap-1.5 self-start sm:self-auto px-3 py-1.5 text-xs font-medium text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors"
+            class="inline-flex items-center gap-1.5 self-start sm:self-auto h-9 px-3 text-xs font-medium text-[#334155] bg-white hover:bg-[#F8FAFC] border border-[#E2E8F0] rounded-md transition-colors"
         >
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
