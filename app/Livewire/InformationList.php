@@ -68,7 +68,7 @@ class InformationList extends Component
             $query->latest('published_at');
         }
 
-        return $query->paginate(8);
+        return $query->paginate(9);
     }
 
     public function render()
